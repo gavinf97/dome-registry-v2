@@ -40,6 +40,7 @@ export class ScoringService {
     let validWeight = 0;
 
     for (const [section, subsections] of Object.entries(WEIGHTS)) {
+      if (typeof subsections !== 'object' || subsections === null) continue;
       const sectionData = (entry[section] ?? {}) as Record<string, Record<string, unknown>>;
 
       for (const [subsection, fields] of Object.entries(subsections)) {
