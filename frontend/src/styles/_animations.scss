@@ -1,0 +1,35 @@
+.fade-in {
+  -webkit-animation: fade-in 0.6s;
+  -moz-animation: fade-in 0.6s;
+  -ms-animation: fade-in 0.6s;
+  -o-animation: fade-in 0.6s;
+  animation: fade-in 0.6s;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@-moz-keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@-webkit-keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@-ms-keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.slow {
+  animation-duration: 1.2s !important;
+}
+
+@for $i from 1 through 4 {
+  $delay: 0.1 * $i;
+  .delay-#{$i} {
+    animation-delay: #{$delay}s !important;
+  }
+}

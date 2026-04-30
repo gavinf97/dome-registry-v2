@@ -1,0 +1,9 @@
+// Angular form validation — apply Bootstrap invalid styles to ng-touched invalid controls
+.ng-invalid.ng-touched {
+  textarea, input, select {
+    &.ng-invalid:not(.ng-untouched) {
+      @extend .is-invalid;
+      background-color: tint-color($form-feedback-invalid-color, 90%) !important;
+    }
+  }
+}
