@@ -31,16 +31,23 @@ services:
       - copilot-net
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
+  # Disable nginx in dev — frontend is served directly on :4200, backend on :3000
+  nginx:
+    profiles: ["prod"]
+
   # Local LLM — Gemma 4 via Ollama
   ollama:
     image: ollama/ollama:latest
     restart: unless-stopped
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     volumes:
       - ollama-data:/root/.ollama
     networks:
       - copilot-net
-    # Pull the model on startup
-    entrypoint: ["/bin/sh", "-c", "ollama serve & sleep 5 && ollama pull ${OLLAMA_MODEL:-gemma3:4b} && wait"]
+    # Pull the model on startup; || true means container keeps running even if pull fails
+    entrypoint: ["/bin/sh", "-c", "ollama serve & sleep 10 && ollama pull ${OLLAMA_MODEL:-gemma3:4b} || echo '⚠ Model pull failed — check internet/DNS, Copilot will not work until model is available' && wait"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
       interval: 30s

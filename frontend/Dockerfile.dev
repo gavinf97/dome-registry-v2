@@ -3,5 +3,8 @@ WORKDIR /app
 RUN npm install -g @angular/cli@17
 COPY package*.json ./
 RUN npm install
+# Copy workspace config files (angular.json, tsconfig.json, etc.)
+# src/ is overridden at runtime by the volume mount for hot-reload
+COPY . .
 EXPOSE 4200
 CMD ["ng", "serve", "--host", "0.0.0.0", "--poll", "1000"]
