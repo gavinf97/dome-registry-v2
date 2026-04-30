@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { UsersService } from '../../services/api.service';
-import { UserProfile } from '../../models/registry.models';
+import { RegistryService } from '../../services/registry.service';
+import { UserProfile, RegistryEntry } from '../../models/registry.models';
 
 @Component({
   selector: 'app-admin',
@@ -11,7 +12,15 @@ import { UserProfile } from '../../models/registry.models';
 
       <ul class="nav nav-tabs mb-4">
         <li class="nav-item">
-          <button class="nav-link" [class.active]="tab === 'users'" (click)="tab = 'users'">Users</button>
+          <button class="nav-link" [class.active]="tab === 'users'" (click)="setTab('users')">
+            Users
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" [class.active]="tab === 'moderation'" (click)="setTab('moderation')">
+            Moderation
+            <span *ngIf="pendingCount > 0" class="badge bg-warning text-dark ms-1">{{ pendingCount }}</span>
+          </button>
         </li>
       </ul>
 
@@ -72,6 +81,58 @@ import { UserProfile } from '../../models/registry.models';
           <button class="btn btn-sm btn-outline-secondary" [disabled]="users.length < 50" (click)="nextPage()">Next</button>
         </div>
       </ng-container>
+
+      <!-- Moderation tab -->
+      <ng-container *ngIf="tab === 'moderation'">
+        <div *ngIf="modLoading" class="text-center py-4"><div class="spinner-border text-primary"></div></div>
+
+        <div *ngIf="!modLoading && pendingEntries.length === 0" class="text-muted text-center py-5">
+          <i class="bi bi-check-circle fs-2 d-block mb-2"></i>No entries awaiting moderation.
+        </div>
+
+        <div class="list-group" *ngIf="!modLoading && pendingEntries.length > 0">
+          <div *ngFor="let entry of pendingEntries"
+            class="list-group-item list-group-item-action py-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <a [routerLink]="['/registry', entry.uuid]" class="fw-semibold text-decoration-none">
+                    {{ entry.publication?.['title'] || '(untitled)' }}
+                  </a>
+                  <span class="badge"
+                    [class.bg-warning]="entry.moderationStatus === 'pending'"
+                    [class.text-dark]="entry.moderationStatus === 'pending'"
+                    [class.bg-info]="entry.moderationStatus === 'held'">
+                    {{ entry.moderationStatus }}
+                  </span>
+                </div>
+                <small class="text-muted">
+                  ORCID: {{ entry.user }} &middot;
+                  Score: {{ entry.score | number:'1.0-1' }} &middot;
+                  Updated: {{ entry.updated | date:'mediumDate' }}
+                </small>
+              </div>
+              <div class="d-flex gap-2 flex-shrink-0 ms-3">
+                <button class="btn btn-sm btn-success"
+                  (click)="moderate(entry, 'public')"
+                  [disabled]="moderating === entry.uuid">
+                  <i class="bi bi-check-lg me-1"></i>Approve
+                </button>
+                <button class="btn btn-sm btn-danger"
+                  (click)="moderate(entry, 'rejected')"
+                  [disabled]="moderating === entry.uuid">
+                  <i class="bi bi-x-lg me-1"></i>Reject
+                </button>
+                <button class="btn btn-sm btn-outline-secondary"
+                  (click)="moderate(entry, 'held')"
+                  [disabled]="moderating === entry.uuid || entry.moderationStatus === 'held'">
+                  Hold
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
     </div>
   `,
 })
@@ -84,15 +145,53 @@ export class AdminComponent implements OnInit {
   editRoles: string[] = [];
   allRoles = ['user', 'admin', 'journal_owner', 'curator'];
 
-  constructor(private usersService: UsersService) {}
+  // Moderation tab
+  pendingEntries: RegistryEntry[] = [];
+  modLoading = false;
+  moderating: string | null = null;
+
+  get pendingCount(): number {
+    return this.pendingEntries.filter(e => e.moderationStatus === 'pending').length;
+  }
+
+  constructor(
+    private usersService: UsersService,
+    private registryService: RegistryService,
+  ) {}
 
   ngOnInit(): void { this.loadUsers(); }
+
+  setTab(t: string): void {
+    this.tab = t;
+    if (t === 'moderation' && this.pendingEntries.length === 0 && !this.modLoading) {
+      this.loadPending();
+    }
+  }
 
   loadUsers(): void {
     this.loading = true;
     this.usersService.adminListUsers(this.page).subscribe(res => {
       this.users = res.users;
       this.loading = false;
+    });
+  }
+
+  loadPending(): void {
+    this.modLoading = true;
+    this.registryService.getPendingQueue().subscribe({
+      next: (entries) => { this.pendingEntries = entries; this.modLoading = false; },
+      error: () => { this.modLoading = false; },
+    });
+  }
+
+  moderate(entry: RegistryEntry, status: string): void {
+    this.moderating = entry.uuid;
+    this.registryService.moderate(entry.uuid, status).subscribe({
+      next: (updated) => {
+        this.pendingEntries = this.pendingEntries.filter(e => e.uuid !== updated.uuid);
+        this.moderating = null;
+      },
+      error: () => { this.moderating = null; },
     });
   }
 

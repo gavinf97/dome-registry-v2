@@ -50,4 +50,20 @@ export class RegistryService {
   submit(uuid: string, journalId?: string): Observable<RegistryEntry> {
     return this.http.post<RegistryEntry>(`${API}/registry/${uuid}/submit`, { journalId });
   }
+
+  getMyEntries(): Observable<RegistryEntry[]> {
+    return this.http.get<RegistryEntry[]>(`${API}/registry/mine`);
+  }
+
+  getPendingQueue(): Observable<RegistryEntry[]> {
+    return this.http.get<RegistryEntry[]>(`${API}/registry/admin/pending`);
+  }
+
+  moderate(uuid: string, status: string, journalId?: string): Observable<RegistryEntry> {
+    return this.http.patch<RegistryEntry>(`${API}/registry/admin/${uuid}/moderate`, { status, journalId });
+  }
+
+  getJournalQueue(journalId: string): Observable<RegistryEntry[]> {
+    return this.http.get<RegistryEntry[]>(`${API}/registry/journals/${journalId}/queue`);
+  }
 }

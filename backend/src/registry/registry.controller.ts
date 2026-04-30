@@ -41,6 +41,19 @@ export class RegistryController {
     return this.registryService.getStats();
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('mine')
+  async getMyEntries(@Req() req: any) {
+    return this.registryService.findByUser(req.user.orcid);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('admin/pending')
+  async getPendingQueue(@Req() req: any) {
+    if (!req.user.roles?.includes('admin')) throw new ForbiddenException();
+    return this.registryService.getPendingQueue();
+  }
+
   @Get(':uuid')
   async getOne(@Param('uuid') uuid: string, @Req() req: any) {
     const entry = await this.registryService.findById(uuid);

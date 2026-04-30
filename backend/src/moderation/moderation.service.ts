@@ -51,7 +51,7 @@ export class ModerationService {
       );
     }
 
-    return this.entryModel.findOneAndUpdate(
+    const updated = await this.entryModel.findOneAndUpdate(
       { uuid },
       {
         $set: {
@@ -62,7 +62,16 @@ export class ModerationService {
         },
       },
       { new: true },
-    ) as Promise<RegistryEntryDocument>;
+    );
+
+    // Notify entry owner of status change
+    if (updated) {
+      await this.mailService
+        .sendStatusChanged(updated.user, uuid, status, updated.publication?.['title'] as string)
+        .catch(() => undefined);
+    }
+
+    return updated as RegistryEntryDocument;
   }
 
   async getJournalQueue(journalId: string): Promise<RegistryEntryDocument[]> {

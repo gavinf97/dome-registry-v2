@@ -25,6 +25,11 @@
         <li class="nav-item" *ngIf="auth.isLoggedIn()">
           <a class="nav-link" routerLink="/registry/new" routerLinkActive="active">New Entry</a>
         </li>
+        <li class="nav-item" *ngIf="auth.hasRole('journal_owner')">
+          <a class="nav-link" routerLink="/journal-queue" routerLinkActive="active">
+            <i class="bi bi-journal-check me-1"></i>Journal Queue
+          </a>
+        </li>
         <li class="nav-item" *ngIf="auth.hasRole('admin')">
           <a class="nav-link" routerLink="/admin" routerLinkActive="active">Admin</a>
         </li>
@@ -40,7 +45,8 @@
             {{ (auth.user$ | async)?.displayName || 'Profile' }}
           </a>
           <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" routerLink="/search">My Entries</a></li>
+            <li><a class="dropdown-item" routerLink="/profile"><i class="bi bi-person me-2"></i>My Profile</a></li>
+            <li><a class="dropdown-item" routerLink="/registry/new"><i class="bi bi-plus-lg me-2"></i>New Entry</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><button class="dropdown-item text-danger" (click)="auth.logout()">Logout</button></li>
           </ul>

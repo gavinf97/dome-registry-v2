@@ -123,6 +123,19 @@ export class RegistryService {
     return this.versionModel.find({ entryId: uuid }).sort({ editedAt: -1 });
   }
 
+  async findByUser(userOrcid: string): Promise<RegistryEntryDocument[]> {
+    return this.entryModel
+      .find({ user: userOrcid })
+      .sort({ updated: -1 })
+      .limit(200);
+  }
+
+  async getPendingQueue(): Promise<RegistryEntryDocument[]> {
+    return this.entryModel
+      .find({ moderationStatus: { $in: ['pending', 'held'] } })
+      .sort({ updated: -1 });
+  }
+
   async getStats(): Promise<Record<string, unknown>> {
     const [total, publicCount, avgScoreResult, statusCounts, tagAgg, recent] = await Promise.all([
       this.entryModel.countDocuments(),

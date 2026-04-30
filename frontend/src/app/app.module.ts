@@ -18,6 +18,8 @@ import { UploadComponent } from './pages/upload/upload.component';
 import { AdminComponent } from './pages/admin/admin.component';
 import { EntryDetailComponent } from './pages/entry-detail/entry-detail.component';
 import { StatsComponent } from './pages/stats/stats.component';
+import { ProfileComponent } from './pages/profile/profile.component';
+import { JournalQueueComponent } from './pages/journal-queue/journal-queue.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +34,8 @@ import { StatsComponent } from './pages/stats/stats.component';
     AdminComponent,
     EntryDetailComponent,
     StatsComponent,
+    ProfileComponent,
+    JournalQueueComponent,
   ],
   imports: [
     BrowserModule,

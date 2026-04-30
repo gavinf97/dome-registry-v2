@@ -8,6 +8,8 @@ import { UploadComponent } from './pages/upload/upload.component';
 import { AdminComponent } from './pages/admin/admin.component';
 import { EntryDetailComponent } from './pages/entry-detail/entry-detail.component';
 import { StatsComponent } from './pages/stats/stats.component';
+import { ProfileComponent } from './pages/profile/profile.component';
+import { JournalQueueComponent } from './pages/journal-queue/journal-queue.component';
 import { AuthGuard, AdminGuard } from './auth/auth.guard';
 
 const routes: Routes = [
@@ -15,6 +17,8 @@ const routes: Routes = [
   { path: 'auth/callback', component: AuthCallbackComponent },
   { path: 'search', component: SearchComponent },
   { path: 'stats', component: StatsComponent },
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
+  { path: 'journal-queue', component: JournalQueueComponent, canActivate: [AuthGuard] },
   { path: 'upload', component: UploadComponent, canActivate: [AuthGuard] },
   { path: 'registry/new', component: RegistryEditorComponent, canActivate: [AuthGuard] },
   { path: 'registry/:uuid/history', component: HistoryComponent },

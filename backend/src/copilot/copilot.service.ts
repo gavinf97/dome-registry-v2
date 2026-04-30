@@ -14,7 +14,7 @@ export class CopilotService {
     const { pdfBuffer, doi, sections } = params;
 
     const payload = {
-      pdf_bytes: pdfBuffer.toString('base64'),
+      pdf_b64: pdfBuffer.toString('base64'),
       doi: doi ?? null,
       sections: sections ?? ['all'],
     };
