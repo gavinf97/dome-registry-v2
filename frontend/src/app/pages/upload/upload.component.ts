@@ -117,9 +117,9 @@ export class UploadComponent {
       .subscribe({
         next: response => {
           this.processing = false;
-          // Create a draft entry, then navigate to editor with annotations pre-filled
+          // Create a draft, then navigate to the editor with annotations in navigation state
           this.registryService.create({ isAiGenerated: true }).subscribe(entry => {
-            this.router.navigate(['/registry', entry.uuid], {
+            this.router.navigate(['/registry', entry.uuid, 'edit'], {
               state: { copilotAnnotations: response.annotations },
             });
           });

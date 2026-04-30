@@ -195,5 +195,17 @@ export class RegistryService {
       })),
     };
   }
+
+  async delete(uuid: string, userOrcid: string, isAdmin: boolean): Promise<void> {
+    const entry = await this.findById(uuid);
+    if (!entry) return;
+    if (entry.user !== userOrcid && !isAdmin) {
+      throw new Error('Forbidden');
+    }
+    await Promise.all([
+      this.entryModel.deleteOne({ uuid }),
+      this.versionModel.deleteMany({ entryId: uuid }),
+    ]);
+  }
 }
 

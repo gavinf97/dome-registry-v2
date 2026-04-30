@@ -1,7 +1,7 @@
 import {
   Controller, Get, Post, Patch, Delete,
   Param, Body, Query, Req, UseGuards,
-  ForbiddenException, NotFoundException,
+  ForbiddenException, NotFoundException, HttpCode, HttpStatus,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards';
 import { RegistryService } from './registry.service';
@@ -52,6 +52,18 @@ export class RegistryController {
   async getPendingQueue(@Req() req: any) {
     if (!req.user.roles?.includes('admin')) throw new ForbiddenException();
     return this.registryService.getPendingQueue();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':uuid')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteOne(@Param('uuid') uuid: string, @Req() req: any) {
+    const entry = await this.registryService.findById(uuid);
+    if (!entry) throw new NotFoundException();
+    const isOwner = entry.user === req.user.orcid;
+    const isAdmin = req.user.roles?.includes('admin');
+    if (!isOwner && !isAdmin) throw new ForbiddenException();
+    await this.registryService.delete(uuid, req.user.orcid, isAdmin);
   }
 
   @Get(':uuid')

@@ -157,6 +157,12 @@ export class RegistryEditorComponent implements OnInit, OnDestroy {
     this.uuid = this.route.snapshot.paramMap.get('uuid');
     if (this.uuid === 'new') this.uuid = null;
 
+    // Check for copilot annotations passed via navigation state
+    const navState = this.router.getCurrentNavigation()?.extras?.state
+      ?? (window.history.state as any);
+    const pendingAnnotations: Record<string, unknown> | null =
+      navState?.copilotAnnotations ?? null;
+
     combineLatest([
       this.schemaService.loadSchema(),
       this.scoringService.getWeights(),
@@ -169,9 +175,16 @@ export class RegistryEditorComponent implements OnInit, OnDestroy {
         this.registryService.get(this.uuid).subscribe(entry => {
           this.entry = entry;
           this.patchForm(entry);
+          // Apply copilot annotations on top of the empty draft
+          if (pendingAnnotations) {
+            this.applyCopilotAnnotations(pendingAnnotations);
+          }
           this.loading = false;
         });
       } else {
+        if (pendingAnnotations) {
+          this.applyCopilotAnnotations(pendingAnnotations);
+        }
         this.loading = false;
       }
 
@@ -195,16 +208,38 @@ export class RegistryEditorComponent implements OnInit, OnDestroy {
     }
   }
 
-  /** Merges copilot annotations (flat  path → value) into the form */
+  /** Merges copilot annotations into the form.
+   *  Accepts both flat path keys ("data/provenance/datasetSource" or "data.provenance.datasetSource")
+   *  and nested objects ({ data: { provenance: { datasetSource: "..." } } }).
+   */
   applyCopilotAnnotations(annotations: Record<string, unknown>): void {
-    for (const [path, value] of Object.entries(annotations)) {
-      const parts = path.split(/[./]/);
+    const flatPairs = this.flattenAnnotations(annotations);
+    for (const [dotPath, value] of flatPairs) {
+      const parts = dotPath.split('.');
       const ctrl = this.form.get(parts);
       if (ctrl) {
         ctrl.patchValue(value, { emitEvent: true });
-        this.aiSuggestedPaths.add(path.replace(/\//g, '.'));
+        this.aiSuggestedPaths.add(dotPath);
       }
     }
+  }
+
+  private flattenAnnotations(
+    obj: Record<string, unknown>,
+    prefix = '',
+  ): Array<[string, unknown]> {
+    const result: Array<[string, unknown]> = [];
+    for (const [rawKey, value] of Object.entries(obj)) {
+      // Normalise separators (/ or .)
+      const key = rawKey.replace(/\//g, '.');
+      const fullKey = prefix ? `${prefix}.${key}` : key;
+      if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+        result.push(...this.flattenAnnotations(value as Record<string, unknown>, fullKey));
+      } else {
+        result.push([fullKey, value]);
+      }
+    }
+    return result;
   }
 
   save(): void {

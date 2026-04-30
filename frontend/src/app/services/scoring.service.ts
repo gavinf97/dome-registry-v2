@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { shareReplay } from 'rxjs/operators';
+import { map, shareReplay } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
 interface WeightEntry {
@@ -31,6 +31,23 @@ function getNestedValue(obj: Record<string, any>, path: string): unknown {
   return path.split('.').reduce((acc, key) => acc?.[key], obj);
 }
 
+function flattenWeights(
+  obj: Record<string, any>,
+  prefix = '',
+  result: Record<string, WeightEntry> = {},
+): Record<string, WeightEntry> {
+  for (const [key, val] of Object.entries(obj)) {
+    if (key === '$comment') continue;
+    const path = prefix ? `${prefix}.${key}` : key;
+    if (val && typeof val === 'object' && 'weight' in val && 'level' in val) {
+      result[path] = val as WeightEntry;
+    } else if (val && typeof val === 'object') {
+      flattenWeights(val, path, result);
+    }
+  }
+  return result;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ScoringService {
   private weights$: Observable<Record<string, WeightEntry>> | null = null;
@@ -40,8 +57,11 @@ export class ScoringService {
   private loadWeights(): Observable<Record<string, WeightEntry>> {
     if (!this.weights$) {
       this.weights$ = this.http
-        .get<Record<string, WeightEntry>>('/assets/schema/scoring-weights.json')
-        .pipe(shareReplay(1));
+        .get<Record<string, any>>('/assets/schema/scoring-weights.json')
+        .pipe(
+          map(raw => flattenWeights(raw)),
+          shareReplay(1),
+        );
     }
     return this.weights$;
   }
