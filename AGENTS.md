@@ -188,6 +188,83 @@ npx json-schema-to-typescript schema/dome-registry-schema.v2.json -o backend/src
 - MongoDB $jsonSchema validation on collections
 - OWASP Top 10: parameterised queries via Mongoose, no raw query injection paths
 
+## Frontend Style Guide
+
+All UI work **must** use these values. Never hardcode one-off colours or fonts — derive from the SCSS variables in `frontend/src/styles/_variables.scss`.
+
+### Brand Colours
+
+| Token | Hex | Bootstrap role | Usage |
+|---|---|---|---|
+| `$primary` | `#003958` | `--bs-primary` | Navbar, footer, section borders, `.btn-primary`, badges |
+| `$secondary` | `#F66729` | `--bs-secondary` | Active nav links, `.btn-secondary`, warning callouts, form invalid feedback |
+| `$orcid-green` | `#9cce50` | — | `.btn-orcid`, `.orcid-text`, ORCID login button only |
+| `$navbar-bg` | `#0D3144` | — | Darker variant for deep-shadow effects |
+| `$color-cyan` | `#00F5FB` | — | Accent highlights only |
+| `$color-link` | `#4a90e2` | — | Inline hyperlinks |
+| `danger` | `#dc3545` | `--bs-danger` | Logout, destructive actions |
+
+**Gradient** (navbar + footer): `linear-gradient(90deg, shift-color($primary, 60%), $primary)`
+— Applied via `.bg-primary.bg-gradient`.
+
+### Typography
+
+| Property | Value |
+|---|---|
+| Font family | `Inter, sans-serif` (loaded from Google Fonts in `index.html`) |
+| Body weight | 400 |
+| Nav/label weight | 500 |
+| Headings | 700 |
+
+Never use `'Segoe UI'`, `system-ui`, or any other font family.
+
+### Spacing & Layout
+
+| Token | Value | Usage |
+|---|---|---|
+| `$navbar-height` | `75px` | Top nav height |
+| `$nav-width` | `250px` | Sidebar width (desktop) |
+| App shell outer | `d-flex flex-column flex-nowrap vw-100 vh-100` | Full-viewport flex column — header + scrollable main + footer |
+| Content padding | Bootstrap container/container-fluid | Never custom px values on page containers |
+
+### Component Classes
+
+| Class | Purpose |
+|---|---|
+| `.btn-orcid` | ORCID-green filled button (ORCID login only) |
+| `.btn-outline-orcid` | ORCID-green outline button |
+| `.logo-sm` | `2rem × 2rem` inline SVG logo (SVG `<img>` tag) |
+| `.logo-lg` | `8rem × 8rem` inline SVG logo |
+| `.dome-section-card` | 4px `$primary` left border card for DOME schema sections |
+| `.badge-requirement` | `$primary` bg — DOME REQUIREMENT level fields |
+| `.badge-recommendation` | `$secondary` bg — DOME RECOMMENDATION level fields |
+| `.ai-banner` | Purple→blue gradient banner for AI-generated entry warnings |
+| `.drop-zone` | Dashed-border file drop area (PDF upload) |
+| `.score-sidebar` | Sticky score preview sidebar |
+| `.progress.progress-gradient` | DOME score bar: red→teal gradient, white remaining |
+| `.fade-in` | 0.6s opacity fade-in animation |
+| `.slow` | Force 1.2s animation duration |
+| `.delay-1` … `.delay-4` | Stagger animation delay (0.1s steps) |
+
+### Assets
+
+All brand SVGs live in `frontend/src/assets/`:
+
+| File | Use |
+|---|---|
+| `logo-white-static.svg` | Navbar brand (on dark/teal background) |
+| `logo-blue-static.svg` | Light-background contexts |
+| `elixir.svg` | Footer "Supported by ELIXIR" |
+| `orcid.svg` | ORCID login button icon |
+
+### Rules for Contributors
+
+1. **SCSS variables only** — never write raw hex codes in component templates or SCSS. Use `$primary`, `$secondary`, etc., or the transparent-white palette (`$color-white-10` … `$color-white-90`).
+2. **Bootstrap SCSS source** is compiled from `_theme.scss` — do not add `bootstrap.min.css` back to `angular.json`. The precompiled CSS won't pick up variable overrides.
+3. **Icons** — use Bootstrap Icons (`bi bi-*` classes) for all iconography. Do not add Font Awesome or other icon libraries.
+4. **No inline styles** in Angular templates except for SVG sizing on the ORCID/Elixir `<img>` tags.
+5. **Page title** is `DOME Registry` — do not rename.
+
 ## Reference Repos (read-only reference, do not modify)
 
 - V1 Registry: https://github.com/BioComputingUP/dome-registry
