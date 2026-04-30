@@ -6,6 +6,7 @@ import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { HomeComponent } from './pages/home/home.component';
 
 import { AuthInterceptor } from './auth/auth.interceptor';
 import { AuthCallbackComponent } from './auth/auth-callback.component';
@@ -24,6 +25,7 @@ import { JournalQueueComponent } from './pages/journal-queue/journal-queue.compo
 @NgModule({
   declarations: [
     AppComponent,
+    HomeComponent,
     AuthCallbackComponent,
     DomeFieldComponent,
     DomeSectionComponent,

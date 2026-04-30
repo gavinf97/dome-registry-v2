@@ -1,0 +1,5 @@
+.footer-link {
+  opacity: .85;
+  transition: opacity .15s;
+  &:hover { opacity: 1; text-decoration: underline !important; }
+}

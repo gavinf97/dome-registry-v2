@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthCallbackComponent } from './auth/auth-callback.component';
+import { HomeComponent } from './pages/home/home.component';
 import { SearchComponent } from './pages/search/search.component';
 import { RegistryEditorComponent } from './pages/registry-editor/registry-editor.component';
 import { HistoryComponent } from './pages/history/history.component';
@@ -13,7 +14,8 @@ import { JournalQueueComponent } from './pages/journal-queue/journal-queue.compo
 import { AuthGuard, AdminGuard } from './auth/auth.guard';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'search', pathMatch: 'full' },
+  { path: '', component: HomeComponent },
+  { path: 'home', redirectTo: '', pathMatch: 'full' },
   { path: 'auth/callback', component: AuthCallbackComponent },
   { path: 'auth/orcid/callback', component: AuthCallbackComponent },
   { path: 'search', component: SearchComponent },

@@ -7,5 +7,14 @@ import { AuthService } from './auth/auth.service';
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
+  currentYear = new Date().getFullYear();
+
+  footerPillars = [
+    { icon: 'bi-database', label: 'Data' },
+    { icon: 'bi-gear-wide-connected', label: 'Optimization' },
+    { icon: 'bi-cpu', label: 'Model' },
+    { icon: 'bi-bar-chart-line', label: 'Evaluation' },
+  ];
+
   constructor(public auth: AuthService) {}
 }

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, switchMap, startWith } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { RegistryService, SearchParams } from '../../services/registry.service';
 import { RegistryEntry } from '../../models/registry.models';
 
@@ -98,9 +98,13 @@ export class SearchComponent implements OnInit {
     return Math.ceil(this.total / this.limit);
   }
 
-  constructor(private registryService: RegistryService) {}
+  constructor(private registryService: RegistryService, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
+    // Pre-fill search from ?text= query param (e.g. from home page search bar)
+    const preText = this.route.snapshot.queryParamMap.get('text');
+    if (preText) { this.searchCtrl.setValue(preText, { emitEvent: false }); }
+
     this.searchCtrl.valueChanges.pipe(
       debounceTime(350),
       distinctUntilChanged(),
