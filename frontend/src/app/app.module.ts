@@ -16,6 +16,8 @@ import { RegistryEditorComponent } from './pages/registry-editor/registry-editor
 import { HistoryComponent } from './pages/history/history.component';
 import { UploadComponent } from './pages/upload/upload.component';
 import { AdminComponent } from './pages/admin/admin.component';
+import { EntryDetailComponent } from './pages/entry-detail/entry-detail.component';
+import { StatsComponent } from './pages/stats/stats.component';
 
 @NgModule({
   declarations: [
@@ -28,6 +30,8 @@ import { AdminComponent } from './pages/admin/admin.component';
     HistoryComponent,
     UploadComponent,
     AdminComponent,
+    EntryDetailComponent,
+    StatsComponent,
   ],
   imports: [
     BrowserModule,

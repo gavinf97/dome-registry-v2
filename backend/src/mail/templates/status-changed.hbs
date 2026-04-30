@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: #2e6da4; color: white; padding: 20px; border-radius: 6px 6px 0 0; }
+    .body { background: #f8f9fa; padding: 24px; border: 1px solid #dee2e6; border-top: none; }
+    .footer { font-size: 12px; color: #6c757d; padding: 12px; text-align: center; }
+    .btn { background: #2e6da4; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block; margin-top: 16px; }
+    .entry-box { background: white; border: 1px solid #dee2e6; border-radius: 4px; padding: 12px; margin: 16px 0; }
+    .status-public { color: #155724; font-weight: bold; }
+    .status-rejected { color: #721c24; font-weight: bold; }
+    .status-held { color: #856404; font-weight: bold; }
+    .status-pending { color: #004085; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2 style="margin:0">DOME Registry — Entry Status Updated</h2>
+  </div>
+  <div class="body">
+    <p>The status of your DOME Registry entry has been updated.</p>
+    <div class="entry-box">
+      <strong>Entry:</strong> {{entryTitle}}<br>
+      <strong>New Status:</strong> <span class="status-{{newStatus}}">{{newStatus}}</span>
+    </div>
+    {{#if (eq newStatus "public")}}
+    <p>🎉 Congratulations! Your entry is now publicly visible in the DOME Registry.</p>
+    {{else if (eq newStatus "rejected")}}
+    <p>Unfortunately your entry was not approved. Please review the entry and contact the registry administrators if you have questions.</p>
+    {{else if (eq newStatus "held")}}
+    <p>Your entry is being reviewed by a journal editor. You will be notified of the outcome.</p>
+    {{/if}}
+    <a href="{{entryUrl}}" class="btn">View Entry</a>
+  </div>
+  <div class="footer">
+    <p>DOME Registry · <a href="{{frontendUrl}}">{{frontendUrl}}</a></p>
+  </div>
+</body>
+</html>

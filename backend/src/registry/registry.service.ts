@@ -122,4 +122,65 @@ export class RegistryService {
   async getHistory(uuid: string): Promise<VersionDocument[]> {
     return this.versionModel.find({ entryId: uuid }).sort({ editedAt: -1 });
   }
+
+  async getStats(): Promise<Record<string, unknown>> {
+    const [total, publicCount, avgScoreResult, statusCounts, tagAgg, recent] = await Promise.all([
+      this.entryModel.countDocuments(),
+      this.entryModel.countDocuments({ moderationStatus: 'public' }),
+      this.entryModel.aggregate([
+        { $match: { moderationStatus: 'public' } },
+        { $group: { _id: null, avgScore: { $avg: '$score' } } },
+      ]),
+      this.entryModel.aggregate([
+        { $group: { _id: '$moderationStatus', count: { $sum: 1 } } },
+      ]),
+      this.entryModel.aggregate([
+        { $match: { moderationStatus: 'public' } },
+        { $unwind: '$tags' },
+        { $group: { _id: '$tags', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 15 },
+      ]),
+      this.entryModel
+        .find({ moderationStatus: 'public' })
+        .sort({ created: -1 })
+        .limit(5)
+        .select('uuid publication score created'),
+    ]);
+
+    const BUCKETS = [
+      { range: '0–24', min: 0, max: 25 },
+      { range: '25–49', min: 25, max: 50 },
+      { range: '50–74', min: 50, max: 75 },
+      { range: '75–100', min: 75, max: 101 },
+    ];
+    const scoreDistribution = await Promise.all(
+      BUCKETS.map(async b => ({
+        range: b.range,
+        count: await this.entryModel.countDocuments({
+          moderationStatus: 'public',
+          score: { $gte: b.min, $lt: b.max },
+        }),
+      })),
+    );
+
+    const byStatus: Record<string, number> = {};
+    for (const s of statusCounts) byStatus[s._id] = s.count;
+
+    return {
+      total,
+      public: publicCount,
+      avgScore: Math.round((avgScoreResult[0]?.avgScore ?? 0) * 10) / 10,
+      byStatus,
+      scoreDistribution,
+      topTags: tagAgg.map((t: any) => ({ tag: t._id, count: t.count })),
+      recentEntries: recent.map((e: any) => ({
+        uuid: e.uuid,
+        title: e.publication?.title,
+        score: e.score,
+        created: e.created,
+      })),
+    };
+  }
 }
+

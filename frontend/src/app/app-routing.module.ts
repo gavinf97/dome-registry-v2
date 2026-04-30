@@ -6,16 +6,20 @@ import { RegistryEditorComponent } from './pages/registry-editor/registry-editor
 import { HistoryComponent } from './pages/history/history.component';
 import { UploadComponent } from './pages/upload/upload.component';
 import { AdminComponent } from './pages/admin/admin.component';
+import { EntryDetailComponent } from './pages/entry-detail/entry-detail.component';
+import { StatsComponent } from './pages/stats/stats.component';
 import { AuthGuard, AdminGuard } from './auth/auth.guard';
 
 const routes: Routes = [
   { path: '', redirectTo: 'search', pathMatch: 'full' },
   { path: 'auth/callback', component: AuthCallbackComponent },
   { path: 'search', component: SearchComponent },
+  { path: 'stats', component: StatsComponent },
   { path: 'upload', component: UploadComponent, canActivate: [AuthGuard] },
   { path: 'registry/new', component: RegistryEditorComponent, canActivate: [AuthGuard] },
   { path: 'registry/:uuid/history', component: HistoryComponent },
-  { path: 'registry/:uuid', component: RegistryEditorComponent },
+  { path: 'registry/:uuid/edit', component: RegistryEditorComponent, canActivate: [AuthGuard] },
+  { path: 'registry/:uuid', component: EntryDetailComponent },
   { path: 'admin', component: AdminComponent, canActivate: [AdminGuard] },
   { path: '**', redirectTo: 'search' },
 ];

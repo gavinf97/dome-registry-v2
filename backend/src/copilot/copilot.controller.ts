@@ -1,6 +1,6 @@
 import {
   Controller, Post, Req, Res, UseGuards,
-  UseInterceptors, UploadedFile, BadRequestException, TooManyRequestsException,
+  UseInterceptors, UploadedFile, BadRequestException, HttpException, HttpStatus,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
@@ -42,8 +42,9 @@ export class CopilotController {
     // Check daily LLM quota
     const calls = await this.usersService.getDailyLLMCalls(orcid);
     if (calls >= DAILY_QUOTA) {
-      throw new TooManyRequestsException(
+      throw new HttpException(
         `Daily Copilot quota of ${DAILY_QUOTA} calls reached. Try again tomorrow.`,
+        HttpStatus.TOO_MANY_REQUESTS,
       );
     }
 

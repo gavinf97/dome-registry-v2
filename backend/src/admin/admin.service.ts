@@ -15,7 +15,7 @@ export class AdminService {
     const skip = (page - 1) * limit;
     const [total, users] = await Promise.all([
       this.userModel.countDocuments(),
-      this.userModel.find().skip(skip).limit(limit).lean(),
+      this.userModel.find().skip(skip).limit(limit).exec(),
     ]);
     return { total, users };
   }

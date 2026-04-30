@@ -36,6 +36,11 @@ export class RegistryController {
     return this.registryService.search(query);
   }
 
+  @Get('stats')
+  async getStats() {
+    return this.registryService.getStats();
+  }
+
   @Get(':uuid')
   async getOne(@Param('uuid') uuid: string, @Req() req: any) {
     const entry = await this.registryService.findById(uuid);

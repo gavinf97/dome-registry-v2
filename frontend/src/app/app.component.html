@@ -12,6 +12,11 @@
         <li class="nav-item">
           <a class="nav-link" routerLink="/search" routerLinkActive="active">Browse</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/stats" routerLinkActive="active">
+            <i class="bi bi-bar-chart-line me-1"></i>Stats
+          </a>
+        </li>
         <li class="nav-item" *ngIf="auth.isLoggedIn()">
           <a class="nav-link" routerLink="/upload" routerLinkActive="active">
             <i class="bi bi-robot me-1"></i>AI Import

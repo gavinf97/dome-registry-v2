@@ -40,7 +40,7 @@ import { RegistryEntry } from '../../models/registry.models';
 
         <div class="list-group">
           <a *ngFor="let entry of entries" [routerLink]="['/registry', entry.uuid]"
-            class="list-group-item list-group-item-action py-3">
+            class="list-group-item list-group-item-action py-3" title="View entry detail">
             <div class="d-flex justify-content-between align-items-start">
               <div>
                 <div class="d-flex align-items-center gap-2 mb-1">
