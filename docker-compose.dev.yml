@@ -5,12 +5,15 @@ services:
   # Override backend for hot-reload in dev
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile.dev
+      context: .
+      dockerfile: backend/Dockerfile.dev
     environment:
       NODE_ENV: development
     volumes:
       - ./backend/src:/app/src:ro
+      - ./schema:/app/schema:ro
+    ports:
+      - "3000:3000"
     command: ["npm", "run", "start:dev"]
 
   # Override copilot for hot-reload in dev
@@ -62,9 +65,7 @@ services:
       - db-net
 
   # Expose backend port directly in dev (bypasses nginx)
-  backend:
-    ports:
-      - "3000:3000"
+  # (already merged into the backend override above, port listed there)
 
   # Angular dev server with hot-reload
   frontend:

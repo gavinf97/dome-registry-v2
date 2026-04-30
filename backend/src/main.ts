@@ -26,6 +26,9 @@ async function bootstrap() {
     }),
   );
 
+  // Graceful shutdown — let Docker SIGTERM drain in-flight requests
+  app.enableShutdownHooks();
+
   await app.listen(3000);
 }
 

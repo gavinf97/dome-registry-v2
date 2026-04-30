@@ -9,20 +9,16 @@ interface WeightEntry {
 
 type WeightMap = Record<string, Record<string, Record<string, WeightEntry>>>;
 
+const SCHEMA_DIR = path.join(__dirname, '..', 'schema');
+
 const NOT_DEFINED_VALUES: Set<string> = new Set(
   JSON.parse(
-    fs.readFileSync(
-      path.join(__dirname, '..', '..', '..', 'schema', 'notDefinedValues.json'),
-      'utf8',
-    ),
+    fs.readFileSync(path.join(SCHEMA_DIR, 'notDefinedValues.json'), 'utf8'),
   ).map((v: string) => v.toLowerCase().trim()),
 );
 
 const WEIGHTS: WeightMap = JSON.parse(
-  fs.readFileSync(
-    path.join(__dirname, '..', '..', '..', 'schema', 'scoring-weights.json'),
-    'utf8',
-  ),
+  fs.readFileSync(path.join(SCHEMA_DIR, 'scoring-weights.json'), 'utf8'),
 );
 
 @Injectable()

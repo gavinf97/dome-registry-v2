@@ -28,7 +28,8 @@ def get_llm():
     if mode == "api":
         endpoint = os.getenv("LLM_ENDPOINT")
         api_key = os.getenv("OPENAI_API_KEY", "")
-        model = os.getenv("LLM_CHAT_MODEL", "gpt-4o-mini")
+        # LLM_CHAT is the canonical env var; LLM_CHAT_MODEL is an accepted alias
+        model = os.getenv("LLM_CHAT") or os.getenv("LLM_CHAT_MODEL") or "gpt-4o-mini"
         return OpenAILLM(
             model=model,
             api_base=endpoint,

@@ -19,8 +19,8 @@ services:
   # ─── Backend (NestJS API) ─────────────────────────────────────────────────
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .                     # repo root — gives Dockerfile access to schema/
+      dockerfile: backend/Dockerfile
     restart: unless-stopped
     env_file: .env
     environment:

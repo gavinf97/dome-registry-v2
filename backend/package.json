@@ -3,6 +3,7 @@
   "version": "2.0.0",
   "description": "DOME Registry V2 — NestJS API Gateway",
   "scripts": {
+    "prebuild": "node -e \"const fs=require('fs'); const src='../schema'; const dst='schema'; if(fs.existsSync(src) && !fs.existsSync(dst)) fs.cpSync(src, dst, {recursive:true});\"",
     "build": "nest build",
     "start": "node dist/main",
     "start:dev": "nest start --watch",

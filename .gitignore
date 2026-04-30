@@ -41,3 +41,6 @@ logs/
 coverage/
 .nyc_output/
 htmlcov/
+
+# Backend prebuild copies schema from repo root — do not commit the copy
+backend/schema/
