@@ -7,4 +7,4 @@ RUN npm install
 # src/ is overridden at runtime by the volume mount for hot-reload
 COPY . .
 EXPOSE 4200
-CMD ["ng", "serve", "--host", "0.0.0.0", "--poll", "1000"]
+CMD ["ng", "serve", "--host", "0.0.0.0", "--poll", "1000", "--proxy-config", "proxy.conf.json"]
