@@ -5,7 +5,8 @@ import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
-  private readonly orcidBaseUrl = 'https://orcid.org';
+  private readonly orcidBaseUrl = process.env.ORCID_BASE_URL ?? 'https://orcid.org';
+  private readonly orcidPubUrl = process.env.ORCID_PUB_URL ?? 'https://pub.orcid.org';
 
   constructor(
     private readonly jwtService: JwtService,
@@ -42,7 +43,7 @@ export class AuthService {
 
     // Fetch full ORCID profile to get given/family name and optional email
     const profileRes = await axios.get(
-      `https://pub.orcid.org/v3.0/${orcid}/personal-details`,
+      `${this.orcidPubUrl}/v3.0/${orcid}/personal-details`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
