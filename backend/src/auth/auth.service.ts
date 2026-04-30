@@ -72,4 +72,20 @@ export class AuthService {
     const jwt = this.jwtService.sign(payload);
     return { jwt, user };
   }
+
+  async devLogin(): Promise<{ jwt: string }> {
+    const user = await this.usersService.upsertFromOrcid({
+      orcid: '0000-0000-0000-0001',
+      displayName: 'Dev User',
+      givenName: 'Dev',
+      familyName: 'User',
+    });
+    const jwt = this.jwtService.sign({
+      sub: user.orcid,
+      orcid: user.orcid,
+      displayName: user.displayName,
+      roles: user.roles,
+    });
+    return { jwt };
+  }
 }

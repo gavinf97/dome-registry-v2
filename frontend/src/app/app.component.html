@@ -40,6 +40,11 @@
             <i class="bi bi-person-badge me-1"></i>Login with ORCID
           </button>
         </li>
+        <li class="nav-item ms-1" *ngIf="!auth.isLoggedIn()">
+          <button class="btn btn-outline-warning btn-sm" (click)="auth.devLogin()" title="Dev login — no ORCID needed">
+            <i class="bi bi-bug me-1"></i>Dev Login
+          </button>
+        </li>
         <li class="nav-item dropdown" *ngIf="auth.isLoggedIn()">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
             {{ (auth.user$ | async)?.displayName || 'Profile' }}

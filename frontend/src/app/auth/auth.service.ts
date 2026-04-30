@@ -60,6 +60,11 @@ export class AuthService {
     window.location.href = `${API}/auth/orcid`;
   }
 
+  /** Dev-only instant login — redirects to backend /auth/dev-login */
+  devLogin(): void {
+    window.location.href = `${API}/auth/dev-login`;
+  }
+
   /** Called from AuthCallbackComponent after receiving token in URL param */
   handleCallback(token: string): void {
     this.setToken(token);

@@ -31,4 +31,16 @@ export class AuthController {
     const { jwt, user } = await this.authService.handleOrcidCallback(body.code);
     return { token: jwt, user };
   }
+
+  /** DEV ONLY — instant login without ORCID. Disabled in production. */
+  @Get('dev-login')
+  async devLogin(@Res() res: Response) {
+    if (process.env.NODE_ENV !== 'development') {
+      (res as any).status(403).json({ message: 'Only available in development mode' });
+      return;
+    }
+    const { jwt } = await this.authService.devLogin();
+    const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:4200';
+    (res as any).redirect(`${frontendUrl}/auth/callback?token=${jwt}`);
+  }
 }
