@@ -1,0 +1,638 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/gavinf97/dome-registry-v2/blob/main/schema/dome-registry-schema.v2.json",
+  "title": "DOME Registry Schema v2",
+  "description": "JSON Schema defining the structure of a DOME Registry entry. This is the canonical source of truth for validation (MongoDB), TypeScript interface generation, frontend form rendering, and the scoring engine.",
+  "x-dome-schema-version": "2.0.0",
+  "type": "object",
+  "required": ["uuid", "shortid", "public", "isAiGenerated", "created", "updated", "publication"],
+  "additionalProperties": false,
+  "properties": {
+    "x-dome-schema-version": {
+      "type": "string",
+      "const": "2.0.0",
+      "description": "The version of the DOME schema used to create this entry."
+    },
+    "_id": {
+      "type": "string",
+      "description": "[SYSTEM] MongoDB internal document ID. Generated server-side."
+    },
+    "user": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$",
+      "description": "ORCID iD of the user who created this entry. Used for attribution. Never the MongoDB _id."
+    },
+    "uuid": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Globally unique identifier. Assigned on creation; never changes."
+    },
+    "shortid": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9]+$",
+      "description": "Short URL-friendly alphanumeric identifier. Assigned on creation; never changes."
+    },
+    "public": {
+      "type": "boolean",
+      "description": "Whether this entry is publicly visible in the registry."
+    },
+    "isAiGenerated": {
+      "type": "boolean",
+      "description": "Whether this entry was generated or substantially assisted by the DOME Copilot AI."
+    },
+    "created": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 creation timestamp, e.g. 2024-09-01T15:16:05.446Z."
+    },
+    "updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of the last update."
+    },
+    "moderationStatus": {
+      "type": "string",
+      "enum": ["draft", "pending", "public", "held", "rejected"],
+      "description": "Moderation state machine: draft→pending→public|held→public|rejected."
+    },
+    "journalId": {
+      "type": "string",
+      "description": "Optional. If set, the entry is associated with a specific journal queue (held state)."
+    },
+    "score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "DOME completeness score 0–100. Computed server-side on every save; never set by the client."
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "User-defined tags for the entry."
+    },
+    "publication": {
+      "type": "object",
+      "description": "Publication metadata for the paper being annotated.",
+      "required": [],
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Title of the publication."
+        },
+        "authors": {
+          "type": "string",
+          "description": "Authors of the publication, comma-separated."
+        },
+        "journal": {
+          "type": "string",
+          "description": "Journal name."
+        },
+        "year": {
+          "type": "string",
+          "pattern": "^\\d{4}$",
+          "description": "Year of publication (4 digits, e.g. 2023)."
+        },
+        "doi": {
+          "type": "string",
+          "pattern": "^10\\.\\d{4,9}/[-._;()/:A-Za-z0-9]+$",
+          "description": "Digital Object Identifier, e.g. 10.1234/example.2023."
+        },
+        "pmid": {
+          "type": "string",
+          "pattern": "^\\d{1,8}$",
+          "description": "PubMed Identifier (numeric, up to 8 digits)."
+        },
+        "pmcid": {
+          "type": "string",
+          "pattern": "^PMC\\d{7}$",
+          "description": "PubMed Central Identifier, e.g. PMC1234567."
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Publication-level tags."
+        }
+      }
+    },
+    "data": {
+      "type": "object",
+      "description": "D — Data section of the DOME checklist.",
+      "additionalProperties": false,
+      "properties": {
+        "provenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "datasetSource": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["database", "publication", "directExperiment", "synthetic", "hybrid", "other"]
+              },
+              "description": "What is the source of the data? Select all that apply.",
+              "x-complianceLevel": "REQUIREMENT"
+            },
+            "pointsPerClass": {
+              "type": "string",
+              "description": "If data are in classes, how many data points are in each class (e.g. Npos and Nneg)?",
+              "x-complianceLevel": "REQUIREMENT"
+            },
+            "regressionPoints": {
+              "type": ["integer", "string"],
+              "description": "If regression, how many real-value data points are there?",
+              "x-complianceLevel": "REQUIREMENT"
+            },
+            "previouslyUsed": {
+              "type": ["boolean", "string"],
+              "description": "Has this dataset been previously used by other papers or is it community-recognised?",
+              "x-complianceLevel": "REQUIREMENT"
+            }
+          }
+        },
+        "dataSplits": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "trainTestPoints": {
+              "type": "string",
+              "description": "How many data points are in the training and test sets?",
+              "x-complianceLevel": "REQUIREMENT"
+            },
+            "validationUsed": {
+              "type": ["boolean", "string"],
+              "description": "Was a separate validation set used?",
+              "x-complianceLevel": "REQUIREMENT"
+            },
+            "validationSize": {
+              "type": ["integer", "string"],
+              "description": "If a separate validation set was used, how large was it?",
+              "x-complianceLevel": "REQUIREMENT"
+            },
+            "distributionsDifferent": {
+              "type": ["boolean", "string"],
+              "description": "Are the distributions of data types in training and test sets different?",
+              "x-complianceLevel": "REQUIREMENT"
+            },
+            "distributionsPlotted": {
+              "type": ["boolean", "string"],
+              "description": "Are the distributions of data types in both training and test sets plotted?",
+              "x-complianceLevel": "REQUIREMENT"
+            }
+          }
+        },
+        "redundancy": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "splitMethod": {
+              "type": "string",
+              "description": "How were the training/test sets split?",
+              "x-complianceLevel": "REQUIREMENT"
+            },
+            "setsIndependent": {
+              "type": ["boolean", "string"],
+              "description": "Are the training and test sets independent?",
+              "x-complianceLevel": "REQUIREMENT"
+            },
+            "independenceEnforcement": {
+              "type": "string",
+              "description": "How was independence enforced (e.g. redundancy reduction to less than X% pairwise identity)?",
+              "x-complianceLevel": "REQUIREMENT"
+            },
+            "distributionComparison": {
+              "type": "string",
+              "description": "How does the distribution compare to previously published ML datasets?",
+              "x-complianceLevel": "REQUIREMENT"
+            }
+          }
+        },
+        "availability": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "isDataPublic": {
+              "type": ["boolean", "string"],
+              "description": "Are the data, including data splits, released in a public forum?",
+              "x-complianceLevel": "REQUIREMENT"
+            },
+            "dataUrl": {
+              "type": "array",
+              "items": { "type": "string", "format": "uri" },
+              "description": "URLs where the data are available (can provide multiple).",
+              "x-complianceLevel": "REQUIREMENT"
+            },
+            "dataLicence": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Licences for the data. Values from SPDX licence list.",
+              "x-complianceLevel": "REQUIREMENT",
+              "x-options-api": "https://raw.githubusercontent.com/spdx/license-list-data/main/json/licenses.json"
+            }
+          }
+        }
+      }
+    },
+    "optimization": {
+      "type": "object",
+      "description": "O — Optimization section of the DOME checklist.",
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "algorithmClass": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "ML algorithm class(es) used. Values from EDAM Ontology.",
+              "x-complianceLevel": "REQUIREMENT",
+              "x-options-api": "http://edamontology.org/topic_3474"
+            },
+            "isAlgorithmNew": {
+              "type": ["boolean", "string"],
+              "description": "Is the ML algorithm novel?",
+              "x-complianceLevel": "REQUIREMENT"
+            },
+            "newAlgorithmJustification": {
+              "type": "string",
+              "description": "If novel, why was it chosen over better-known alternatives?",
+              "x-complianceLevel": "REQUIREMENT"
+            }
+          }
+        },
+        "metaPredictions": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "usesMetaPredictions": {
+              "type": ["boolean", "string"],
+              "description": "Does the model use predictions from other ML algorithms as input?",
+              "x-complianceLevel": "REQUIREMENT"
+            },
+            "metaPredictionAlgorithms": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "If yes, which algorithms are used as meta-predictor inputs?",
+              "x-complianceLevel": "REQUIREMENT"
+            },
+            "metaPredictorIndependence": {
+              "type": ["boolean", "string"],
+              "description": "Is the training data of initial predictors independent from the meta-predictor test data?",
+              "x-complianceLevel": "REQUIREMENT"
+            }
+          }
+        },
+        "encoding": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "dataEncodingMethod": {
+              "type": "string",
+              "description": "How were the data encoded and preprocessed for the ML algorithm?",
+              "x-complianceLevel": "RECOMMENDATION"
+            }
+          }
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "numberOfParameters": {
+              "type": ["integer", "string"],
+              "description": "How many parameters does the model use?",
+              "x-complianceLevel": "RECOMMENDATION"
+            },
+            "parameterSelectionMethod": {
+              "type": "string",
+              "description": "How were the parameters selected?",
+              "x-complianceLevel": "RECOMMENDATION"
+            }
+          }
+        },
+        "features": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "numberOfFeatures": {
+              "type": ["integer", "string"],
+              "description": "How many features are used as input?",
+              "x-complianceLevel": "RECOMMENDATION"
+            },
+            "featureSelectionPerformed": {
+              "type": ["boolean", "string"],
+              "description": "Was feature selection performed?",
+              "x-complianceLevel": "RECOMMENDATION"
+            },
+            "featureSelectionTrainingOnly": {
+              "type": ["boolean", "string"],
+              "description": "If yes, was feature selection performed on the training set only?",
+              "x-complianceLevel": "RECOMMENDATION"
+            }
+          }
+        },
+        "fitting": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "parametersExceedData": {
+              "type": ["boolean", "string"],
+              "description": "Is the number of parameters much larger than the training points, and/or is the feature count large?",
+              "x-complianceLevel": "RECOMMENDATION"
+            },
+            "overfittingPrevention": {
+              "type": "string",
+              "description": "If yes, how was overfitting ruled out?",
+              "x-complianceLevel": "RECOMMENDATION"
+            },
+            "underfittingPrevention": {
+              "type": "string",
+              "description": "Conversely, if parameters/features are small relative to training data, how was underfitting ruled out?",
+              "x-complianceLevel": "RECOMMENDATION"
+            }
+          }
+        },
+        "regularization": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "regularizationUsed": {
+              "type": ["boolean", "string"],
+              "description": "Were any overfitting-prevention techniques used?",
+              "x-complianceLevel": "REQUIREMENT"
+            },
+            "regularizationTechniques": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Which regularization techniques were used?",
+              "x-complianceLevel": "REQUIREMENT"
+            }
+          }
+        },
+        "configAvailability": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "configReported": {
+              "type": ["boolean", "string"],
+              "description": "Are hyperparameter configurations, optimization schedule, model files, and optimization parameters reported?",
+              "x-complianceLevel": "RECOMMENDATION"
+            },
+            "configUrl": {
+              "type": "array",
+              "items": { "type": "string", "format": "uri" },
+              "description": "URLs where the configuration is available (can provide multiple).",
+              "x-complianceLevel": "RECOMMENDATION"
+            },
+            "configLicence": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Licences for the configuration. Values from SPDX licence list.",
+              "x-complianceLevel": "RECOMMENDATION",
+              "x-options-api": "https://raw.githubusercontent.com/spdx/license-list-data/main/json/licenses.json"
+            }
+          }
+        }
+      }
+    },
+    "model": {
+      "type": "object",
+      "description": "M — Model section of the DOME checklist.",
+      "additionalProperties": false,
+      "properties": {
+        "interpretability": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "interpretabilityType": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["black box", "interpretable", "hybrid"]
+              },
+              "description": "Is the model black box, interpretable, or hybrid? Select all that apply.",
+              "x-complianceLevel": "RECOMMENDATION"
+            },
+            "interpretabilityExamples": {
+              "type": "string",
+              "description": "If interpretable, provide clear examples.",
+              "x-complianceLevel": "RECOMMENDATION"
+            },
+            "xaiMethods": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Explainable AI (XAI) methods used, e.g. SHAP, Feature Importance.",
+              "x-complianceLevel": "RECOMMENDATION"
+            }
+          }
+        },
+        "output": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "outputType": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["classification", "regression", "generative", "clustering", "other"]
+              },
+              "description": "Model task type. Select all that apply.",
+              "x-complianceLevel": "REQUIREMENT"
+            },
+            "targetVariable": {
+              "type": "string",
+              "description": "What is being predicted? Identify the target variable and its units.",
+              "x-complianceLevel": "REQUIREMENT"
+            }
+          }
+        },
+        "execution": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "trainingTime": {
+              "type": "string",
+              "description": "How long did training take?",
+              "x-complianceLevel": "RECOMMENDATION"
+            },
+            "inferenceTime": {
+              "type": "string",
+              "description": "How long does a single representative inference take?",
+              "x-complianceLevel": "RECOMMENDATION"
+            },
+            "hardwareUsed": {
+              "type": "string",
+              "description": "Hardware used for timing (CPU/GPU/TPU specifications).",
+              "x-complianceLevel": "RECOMMENDATION"
+            },
+            "energyConsumption": {
+              "type": "string",
+              "description": "Estimated energy consumption for training or a representative inference.",
+              "x-complianceLevel": "RECOMMENDATION"
+            }
+          }
+        },
+        "softwareAvailability": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "sourceCodeReleased": {
+              "type": ["boolean", "string"],
+              "description": "Is the source code released?",
+              "x-complianceLevel": "REQUIREMENT"
+            },
+            "executableReleased": {
+              "type": ["boolean", "string"],
+              "description": "Is a way to run the algorithm released (executable, web server, container, VM)?",
+              "x-complianceLevel": "REQUIREMENT"
+            },
+            "softwareUrl": {
+              "type": "array",
+              "items": { "type": "string", "format": "uri" },
+              "description": "URLs where the software is available (can provide multiple).",
+              "x-complianceLevel": "REQUIREMENT"
+            },
+            "softwareLicence": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Software licences. Values from SPDX licence list.",
+              "x-complianceLevel": "REQUIREMENT",
+              "x-options-api": "https://raw.githubusercontent.com/spdx/license-list-data/main/json/licenses.json"
+            }
+          }
+        }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "description": "E — Evaluation section of the DOME checklist.",
+      "additionalProperties": false,
+      "properties": {
+        "method": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "evaluationMethod": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "kFoldCrossValidation",
+                  "leaveOneOut",
+                  "holdout",
+                  "independentExternalDataset",
+                  "novelExperiment",
+                  "other"
+                ]
+              },
+              "description": "How were the methods evaluated? Select all that apply.",
+              "x-complianceLevel": "REQUIREMENT"
+            }
+          }
+        },
+        "performanceMeasures": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "performanceMetrics": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "accuracy",
+                  "f1Score",
+                  "aucRoc",
+                  "precision",
+                  "recall",
+                  "rmse",
+                  "mae",
+                  "rSquared",
+                  "matthewsCorrelationCoefficient",
+                  "bleu",
+                  "rouge",
+                  "inceptionScore",
+                  "frechetInceptionDistance",
+                  "other"
+                ]
+              },
+              "description": "Performance metrics reported. Select all that apply.",
+              "x-complianceLevel": "REQUIREMENT"
+            },
+            "metricsRepresentative": {
+              "type": ["boolean", "string"],
+              "description": "Is this metric set representative compared to the literature?",
+              "x-complianceLevel": "REQUIREMENT"
+            }
+          }
+        },
+        "comparison": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "comparisonPublicMethods": {
+              "type": ["boolean", "string"],
+              "description": "Was a comparison to publicly available methods on benchmark datasets performed?",
+              "x-complianceLevel": "REQUIREMENT"
+            },
+            "comparisonBaselines": {
+              "type": ["boolean", "string"],
+              "description": "Was a comparison to simpler baselines performed?",
+              "x-complianceLevel": "REQUIREMENT"
+            },
+            "comparedToolsAndBaselines": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "List the specific tools or baseline models used for comparison.",
+              "x-complianceLevel": "REQUIREMENT"
+            }
+          }
+        },
+        "confidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "hasConfidenceIntervals": {
+              "type": ["boolean", "string"],
+              "description": "Do the performance metrics have confidence intervals?",
+              "x-complianceLevel": "RECOMMENDATION"
+            },
+            "statisticallySignificant": {
+              "type": ["boolean", "string"],
+              "description": "Are the results statistically significant to claim superiority over other methods?",
+              "x-complianceLevel": "RECOMMENDATION"
+            },
+            "confidenceNumericalValues": {
+              "type": "string",
+              "description": "Actual numerical values for reported confidence intervals or p-values.",
+              "x-complianceLevel": "RECOMMENDATION"
+            }
+          }
+        },
+        "evaluationAvailability": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "rawFilesAvailable": {
+              "type": ["boolean", "string"],
+              "description": "Are the raw evaluation files available?",
+              "x-complianceLevel": "RECOMMENDATION"
+            },
+            "rawFilesUrl": {
+              "type": "array",
+              "items": { "type": "string", "format": "uri" },
+              "description": "URLs where the raw evaluation files are available (can provide multiple).",
+              "x-complianceLevel": "RECOMMENDATION"
+            },
+            "rawFilesLicence": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Licences for the raw evaluation files. Values from SPDX licence list.",
+              "x-complianceLevel": "RECOMMENDATION",
+              "x-options-api": "https://raw.githubusercontent.com/spdx/license-list-data/main/json/licenses.json"
+            }
+          }
+        }
+      }
+    }
+  }
+}

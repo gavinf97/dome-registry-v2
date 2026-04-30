@@ -1,0 +1,70 @@
+include:
+  - docker-compose.yml
+
+services:
+  # Override backend for hot-reload in dev
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./backend/src:/app/src:ro
+    command: ["npm", "run", "start:dev"]
+
+  # Override copilot for hot-reload in dev
+  copilot:
+    build:
+      context: ./copilot
+      dockerfile: Dockerfile.dev
+    environment:
+      LLM_MODE: local
+      OLLAMA_BASE_URL: http://ollama:11434
+    volumes:
+      - ./copilot/app:/app/app:ro
+      - ./copilot/dome_copilot:/app/dome_copilot:ro
+    networks:
+      - copilot-net
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  # Local LLM — Gemma 4 via Ollama
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - copilot-net
+    # Pull the model on startup
+    entrypoint: ["/bin/sh", "-c", "ollama serve & sleep 5 && ollama pull ${OLLAMA_MODEL:-gemma3:4b} && wait"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+
+  # MongoDB admin UI — dev only
+  mongo-express:
+    image: mongo-express:1
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongodb:27017
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: devpassword
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - db-net
+
+  # Expose backend port directly in dev (bypasses nginx)
+  backend:
+    ports:
+      - "3000:3000"
+
+volumes:
+  ollama-data:

@@ -1,0 +1,43 @@
+# Dependency directories
+node_modules/
+dist/
+.next/
+
+# Environment variables — never commit
+.env
+*.env.local
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Build artefacts
+dist/
+build/
+*.js.map
+*.d.ts.map
+
+# IDE
+.idea/
+.vscode/settings.json
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# Docker volumes
+data/
+
+# Logs
+*.log
+logs/
+
+# Test coverage
+coverage/
+.nyc_output/
+htmlcov/

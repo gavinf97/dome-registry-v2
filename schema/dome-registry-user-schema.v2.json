@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/gavinf97/dome-registry-v2/blob/main/schema/dome-registry-user-schema.v2.json",
+  "title": "DOME Registry User Schema v2",
+  "description": "JSON Schema defining the structure of a DOME Registry user account. ORCID iD is the primary key and the attribution link used in all entry and version documents. All PII fields (email, givenName, familyName) are stored server-side only and never exposed in public API responses.",
+  "x-dome-schema-version": "2.0.0",
+  "type": "object",
+  "required": ["orcid", "roles", "createdAt"],
+  "additionalProperties": false,
+  "properties": {
+    "_id": {
+      "type": "string",
+      "description": "[SYSTEM] MongoDB internal document ID. NOT used as a reference from entry documents — use orcid instead."
+    },
+    "orcid": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$",
+      "description": "ORCID iD in 16-digit grouped format, e.g. 0000-0002-1825-0097. Primary key. Unique. Used as the attribution link in RegistryDocument.user and VersionDocument.editedBy."
+    },
+    "displayName": {
+      "type": "string",
+      "description": "Publicly visible display name, e.g. 'Gavin Farrell'. Shown on entry attribution. User-editable; initially populated from ORCID profile (givenName + familyName)."
+    },
+    "givenName": {
+      "type": "string",
+      "description": "[PII] Given (first) name. Populated from ORCID profile on login. Never returned in public API responses."
+    },
+    "familyName": {
+      "type": "string",
+      "description": "[PII] Family (last) name. Populated from ORCID profile on login. Never returned in public API responses."
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "[PII] Email address. Optional — only populated if the user grants ORCID email scope. Refreshed on login. Used for notifications only. Never returned in public API responses."
+    },
+    "organisation": {
+      "type": "string",
+      "description": "Self-reported affiliation. Free-text, user-editable. Used for analytics."
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["user", "admin", "journal_owner"]
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "default": ["user"],
+      "description": "Access roles. Array to allow multiple simultaneous roles (e.g. user + journal_owner). Roles: user (default), admin (full system access), journal_owner (manage assigned journal queues)."
+    },
+    "journalAssignments": {
+      "type": "array",
+      "description": "Journals this user is assigned to manage as a journal_owner. Populated by admins.",
+      "items": {
+        "type": "object",
+        "required": ["journalId", "journalName", "assignedByOrcid", "assignedAt"],
+        "additionalProperties": false,
+        "properties": {
+          "journalId": {
+            "type": "string",
+            "description": "Internal journal identifier."
+          },
+          "journalName": {
+            "type": "string",
+            "description": "Human-readable journal name, e.g. 'GigaScience'."
+          },
+          "assignedByOrcid": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$",
+            "description": "ORCID iD of the admin who assigned this journal ownership."
+          },
+          "assignedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 timestamp when the assignment was made."
+          }
+        }
+      }
+    },
+    "dailyLLMCalls": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0,
+      "description": "Number of DOME Copilot (LLM) calls made today. Reset to 0 at midnight UTC."
+    },
+    "dailyLLMResetAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of the last daily LLM quota reset."
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of account creation (first successful ORCID login / upsert)."
+    },
+    "lastLoginAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of most recent ORCID login. Updated on every successful OAuth callback."
+    }
+  }
+}
