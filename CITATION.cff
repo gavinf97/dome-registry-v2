@@ -1,0 +1,107 @@
+cff-version: 1.2.0
+message: >
+  If you use this software, please cite it as below.
+  Please also cite the foundational works listed under references.
+
+title: "DOME Registry V2"
+type: software
+version: 2.0.0
+date-released: "2026-04-30"
+license: CC-BY-4.0
+repository-code: "https://github.com/gavinf97/dome-registry-v2"
+
+abstract: >
+  DOME Registry V2 is a full-stack, Dockerised ML annotation registry.
+  Researchers submit machine learning papers and an AI Copilot auto-fills
+  a structured annotation form guided by the DOME checklist
+  (Data, Optimisation, Model, Evaluation). The registry stores structured
+  JSON annotations alongside full provenance metadata, with ORCID
+  authentication, versioned history, and a moderation workflow.
+
+authors:
+  - family-names: Farrell
+    given-names: Gavin
+    orcid: "https://orcid.org/0009-0005-8810-545X"
+
+keywords:
+  - DOME
+  - machine learning
+  - reproducibility
+  - annotation registry
+  - bioinformatics
+  - LLM
+  - FastAPI
+  - NestJS
+  - Angular
+
+references:
+  # ── DOME Registry V1 paper (foundational) ─────────────────────────────────
+  - type: article
+    title: >
+      DOME Registry: implementing community-wide recommendations for
+      reporting supervised machine learning in biology
+    authors:
+      - family-names: Attafi
+        given-names: Omar Abdelkader
+      - family-names: Clementel
+        given-names: Damiano
+      - family-names: Kyritsis
+        given-names: Konstantinos
+      - family-names: Capriotti
+        given-names: Emidio
+      - family-names: Farrell
+        given-names: Gavin
+      - family-names: Fragkouli
+        given-names: Sotia-Chrysanthi
+      - family-names: Castro
+        given-names: Leyla Jael
+      - family-names: Hatos
+        given-names: András
+      - family-names: Lenaerts
+        given-names: Tom
+      - family-names: Mazurenko
+        given-names: Stanislav
+      - family-names: Mozaffari
+        given-names: Sina
+      - family-names: Pradelli
+        given-names: Francesco
+      - family-names: Ruch
+        given-names: Patrick
+      - family-names: Savojardo
+        given-names: Castrense
+      - family-names: Turina
+        given-names: Paola
+      - family-names: Zambelli
+        given-names: Federico
+      - family-names: Piovesan
+        given-names: Damiano
+      - family-names: Monzon
+        given-names: Alexander Miguel
+      - family-names: Psomopoulos
+        given-names: Fotis
+      - family-names: Tosatto
+        given-names: Silvio C. E.
+    journal: GigaScience
+    volume: "13"
+    article-number: giae094
+    year: 2024
+    doi: "10.1093/gigascience/giae094"
+    pmid: "39661723"
+    pmcid: PMC11633452
+    url: "https://academic.oup.com/gigascience/article/doi/10.1093/gigascience/giae094/7334270"
+    repository-code: "https://github.com/BioComputingUP/dome-registry"
+
+  # ── DOME Copilot paper ─────────────────────────────────────────────────────
+  - type: article
+    title: "DOME Copilot: LLM-assisted annotation of machine learning methods in biology"
+    # TODO: replace with final title, DOI and year once published
+    authors:
+      - family-names: Farrell
+        given-names: Gavin
+    year: 2025
+    # doi: "10.1101/XXXX"          ← fill in bioRxiv DOI
+    # url: "https://www.biorxiv.org/content/XXXX"
+    notes: >
+      Preprint on bioRxiv. Update doi and url fields above once the
+      preprint DOI is confirmed.
+    repository-code: "https://github.com/IFCA-Advanced-Computing/dome-copilot"
