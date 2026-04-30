@@ -15,6 +15,7 @@ import { AuthGuard, AdminGuard } from './auth/auth.guard';
 const routes: Routes = [
   { path: '', redirectTo: 'search', pathMatch: 'full' },
   { path: 'auth/callback', component: AuthCallbackComponent },
+  { path: 'auth/orcid/callback', component: AuthCallbackComponent },
   { path: 'search', component: SearchComponent },
   { path: 'stats', component: StatsComponent },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },

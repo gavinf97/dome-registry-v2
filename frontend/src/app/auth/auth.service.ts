@@ -66,6 +66,17 @@ export class AuthService {
     this.fetchProfile().subscribe(() => this.router.navigateByUrl('/'));
   }
 
+  /** Called from AuthCallbackComponent after receiving ORCID ?code= directly */
+  exchangeCode(code: string): Observable<void> {
+    return this.http.post<{ token: string }>(`${API}/auth/orcid/exchange`, { code }).pipe(
+      tap(res => {
+        this.setToken(res.token);
+      }),
+      map(() => undefined),
+      tap(() => this.fetchProfile().subscribe()),
+    );
+  }
+
   fetchProfile(): Observable<UserProfile> {
     return this.http.get<UserProfile>(`${API}/users/me`).pipe(
       tap(user => this._user$.next(user)),
