@@ -353,8 +353,8 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  truncate(s: string | undefined, max: number): string {
-    if (!s) return '';
-    return s.length > max ? s.slice(0, max - 1) + '…' : s;
+  truncate(s: unknown, max: number): string {
+    const str = s == null ? '' : String(s);
+    return str.length > max ? str.slice(0, max - 1) + '…' : str;
   }
 }
