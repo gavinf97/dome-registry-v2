@@ -1,0 +1,114 @@
+{
+  "$comment": "DOME scoring weights — maps every scored leaf field path to its point weight. REQUIREMENT fields = 1.0 point, RECOMMENDATION fields = 0.5 points. Score = sum(weight * isValid) / sum(weight) * 100. Admins can adjust weights via PATCH /admin/scoring-weights.",
+  "data": {
+    "provenance": {
+      "datasetSource": { "weight": 1.0, "level": "REQUIREMENT" },
+      "pointsPerClass": { "weight": 1.0, "level": "REQUIREMENT" },
+      "regressionPoints": { "weight": 1.0, "level": "REQUIREMENT" },
+      "previouslyUsed": { "weight": 1.0, "level": "REQUIREMENT" }
+    },
+    "dataSplits": {
+      "trainTestPoints": { "weight": 1.0, "level": "REQUIREMENT" },
+      "validationUsed": { "weight": 1.0, "level": "REQUIREMENT" },
+      "validationSize": { "weight": 1.0, "level": "REQUIREMENT" },
+      "distributionsDifferent": { "weight": 1.0, "level": "REQUIREMENT" },
+      "distributionsPlotted": { "weight": 1.0, "level": "REQUIREMENT" }
+    },
+    "redundancy": {
+      "splitMethod": { "weight": 1.0, "level": "REQUIREMENT" },
+      "setsIndependent": { "weight": 1.0, "level": "REQUIREMENT" },
+      "independenceEnforcement": { "weight": 1.0, "level": "REQUIREMENT" },
+      "distributionComparison": { "weight": 1.0, "level": "REQUIREMENT" }
+    },
+    "availability": {
+      "isDataPublic": { "weight": 1.0, "level": "REQUIREMENT" },
+      "dataUrl": { "weight": 1.0, "level": "REQUIREMENT" },
+      "dataLicence": { "weight": 1.0, "level": "REQUIREMENT" }
+    }
+  },
+  "optimization": {
+    "algorithm": {
+      "algorithmClass": { "weight": 1.0, "level": "REQUIREMENT" },
+      "isAlgorithmNew": { "weight": 1.0, "level": "REQUIREMENT" },
+      "newAlgorithmJustification": { "weight": 1.0, "level": "REQUIREMENT" }
+    },
+    "metaPredictions": {
+      "usesMetaPredictions": { "weight": 1.0, "level": "REQUIREMENT" },
+      "metaPredictionAlgorithms": { "weight": 1.0, "level": "REQUIREMENT" },
+      "metaPredictorIndependence": { "weight": 1.0, "level": "REQUIREMENT" }
+    },
+    "encoding": {
+      "dataEncodingMethod": { "weight": 0.5, "level": "RECOMMENDATION" }
+    },
+    "parameters": {
+      "numberOfParameters": { "weight": 0.5, "level": "RECOMMENDATION" },
+      "parameterSelectionMethod": { "weight": 0.5, "level": "RECOMMENDATION" }
+    },
+    "features": {
+      "numberOfFeatures": { "weight": 0.5, "level": "RECOMMENDATION" },
+      "featureSelectionPerformed": { "weight": 0.5, "level": "RECOMMENDATION" },
+      "featureSelectionTrainingOnly": { "weight": 0.5, "level": "RECOMMENDATION" }
+    },
+    "fitting": {
+      "parametersExceedData": { "weight": 0.5, "level": "RECOMMENDATION" },
+      "overfittingPrevention": { "weight": 0.5, "level": "RECOMMENDATION" },
+      "underfittingPrevention": { "weight": 0.5, "level": "RECOMMENDATION" }
+    },
+    "regularization": {
+      "regularizationUsed": { "weight": 1.0, "level": "REQUIREMENT" },
+      "regularizationTechniques": { "weight": 1.0, "level": "REQUIREMENT" }
+    },
+    "configAvailability": {
+      "configReported": { "weight": 0.5, "level": "RECOMMENDATION" },
+      "configUrl": { "weight": 0.5, "level": "RECOMMENDATION" },
+      "configLicence": { "weight": 0.5, "level": "RECOMMENDATION" }
+    }
+  },
+  "model": {
+    "interpretability": {
+      "interpretabilityType": { "weight": 0.5, "level": "RECOMMENDATION" },
+      "interpretabilityExamples": { "weight": 0.5, "level": "RECOMMENDATION" },
+      "xaiMethods": { "weight": 0.5, "level": "RECOMMENDATION" }
+    },
+    "output": {
+      "outputType": { "weight": 1.0, "level": "REQUIREMENT" },
+      "targetVariable": { "weight": 1.0, "level": "REQUIREMENT" }
+    },
+    "execution": {
+      "trainingTime": { "weight": 0.5, "level": "RECOMMENDATION" },
+      "inferenceTime": { "weight": 0.5, "level": "RECOMMENDATION" },
+      "hardwareUsed": { "weight": 0.5, "level": "RECOMMENDATION" },
+      "energyConsumption": { "weight": 0.5, "level": "RECOMMENDATION" }
+    },
+    "softwareAvailability": {
+      "sourceCodeReleased": { "weight": 1.0, "level": "REQUIREMENT" },
+      "executableReleased": { "weight": 1.0, "level": "REQUIREMENT" },
+      "softwareUrl": { "weight": 1.0, "level": "REQUIREMENT" },
+      "softwareLicence": { "weight": 1.0, "level": "REQUIREMENT" }
+    }
+  },
+  "evaluation": {
+    "method": {
+      "evaluationMethod": { "weight": 1.0, "level": "REQUIREMENT" }
+    },
+    "performanceMeasures": {
+      "performanceMetrics": { "weight": 1.0, "level": "REQUIREMENT" },
+      "metricsRepresentative": { "weight": 1.0, "level": "REQUIREMENT" }
+    },
+    "comparison": {
+      "comparisonPublicMethods": { "weight": 1.0, "level": "REQUIREMENT" },
+      "comparisonBaselines": { "weight": 1.0, "level": "REQUIREMENT" },
+      "comparedToolsAndBaselines": { "weight": 1.0, "level": "REQUIREMENT" }
+    },
+    "confidence": {
+      "hasConfidenceIntervals": { "weight": 0.5, "level": "RECOMMENDATION" },
+      "statisticallySignificant": { "weight": 0.5, "level": "RECOMMENDATION" },
+      "confidenceNumericalValues": { "weight": 0.5, "level": "RECOMMENDATION" }
+    },
+    "evaluationAvailability": {
+      "rawFilesAvailable": { "weight": 0.5, "level": "RECOMMENDATION" },
+      "rawFilesUrl": { "weight": 0.5, "level": "RECOMMENDATION" },
+      "rawFilesLicence": { "weight": 0.5, "level": "RECOMMENDATION" }
+    }
+  }
+}

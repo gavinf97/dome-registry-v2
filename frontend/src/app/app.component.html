@@ -1,0 +1,55 @@
+<!-- DOME Registry V2 — App Shell -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold" routerLink="/">
+      <i class="bi bi-grid-3x3-gap-fill me-2"></i>DOME Registry
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMain">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/search" routerLinkActive="active">Browse</a>
+        </li>
+        <li class="nav-item" *ngIf="auth.isLoggedIn()">
+          <a class="nav-link" routerLink="/upload" routerLinkActive="active">
+            <i class="bi bi-robot me-1"></i>AI Import
+          </a>
+        </li>
+        <li class="nav-item" *ngIf="auth.isLoggedIn()">
+          <a class="nav-link" routerLink="/registry/new" routerLinkActive="active">New Entry</a>
+        </li>
+        <li class="nav-item" *ngIf="auth.hasRole('admin')">
+          <a class="nav-link" routerLink="/admin" routerLinkActive="active">Admin</a>
+        </li>
+      </ul>
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item" *ngIf="!auth.isLoggedIn()">
+          <button class="btn btn-outline-light btn-sm" (click)="auth.login()">
+            <i class="bi bi-person-badge me-1"></i>Login with ORCID
+          </button>
+        </li>
+        <li class="nav-item dropdown" *ngIf="auth.isLoggedIn()">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+            {{ (auth.user$ | async)?.displayName || 'Profile' }}
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" routerLink="/search">My Entries</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><button class="dropdown-item text-danger" (click)="auth.logout()">Logout</button></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <router-outlet></router-outlet>
+</main>
+
+<footer class="border-top mt-5 py-3 bg-light text-center text-muted small">
+  DOME Registry V2 &mdash;
+  <a href="https://dome-ml.org" target="_blank" rel="noopener">dome-ml.org</a>
+</footer>

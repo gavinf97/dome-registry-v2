@@ -66,5 +66,17 @@ services:
     ports:
       - "3000:3000"
 
+  # Angular dev server with hot-reload
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./frontend/src:/app/src:ro
+    ports:
+      - "4200:4200"
+    networks:
+      - public-net
+
 volumes:
   ollama-data:

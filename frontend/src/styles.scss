@@ -1,0 +1,51 @@
+// Global styles — DOME Registry V2
+
+:root {
+  --dome-blue: #2e6da4;
+  --dome-green: #28a745;
+  --dome-orange: #fd7e14;
+  --dome-red: #dc3545;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #f8f9fa;
+}
+
+.score-badge {
+  font-size: 1.4rem;
+  font-weight: 700;
+  padding: 0.35em 0.65em;
+}
+
+.dome-section-card {
+  border-left: 4px solid var(--dome-blue);
+  margin-bottom: 1.5rem;
+}
+
+.badge-requirement { background-color: var(--dome-blue); color: #fff; }
+.badge-recommendation { background-color: var(--dome-orange); color: #fff; }
+
+.ai-banner {
+  background: linear-gradient(90deg, #6610f2, #0d6efd);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+}
+
+.drop-zone {
+  border: 2px dashed #adb5bd;
+  border-radius: 0.5rem;
+  padding: 3rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+
+  &.drag-over {
+    border-color: var(--dome-blue);
+    background: rgba(46, 109, 164, 0.06);
+  }
+}
+
+.score-sidebar { position: sticky; top: 1rem; }
