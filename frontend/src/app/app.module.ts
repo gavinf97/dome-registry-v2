@@ -22,6 +22,11 @@ import { StatsComponent } from './pages/stats/stats.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { JournalQueueComponent } from './pages/journal-queue/journal-queue.component';
 import { AboutComponent } from './pages/about/about.component';
+import { AboutOverviewComponent } from './pages/about/about-overview.component';
+import { AboutIntegrationsComponent } from './pages/about/about-integrations.component';
+import { AboutGovernanceComponent } from './pages/about/about-governance.component';
+import { AboutPoliciesComponent } from './pages/about/about-policies.component';
+import { AboutNewsComponent } from './pages/about/about-news.component';
 import { HelpComponent } from './pages/help/help.component';
 import { ApiDocsComponent } from './pages/api-docs/api-docs.component';
 
@@ -42,6 +47,11 @@ import { ApiDocsComponent } from './pages/api-docs/api-docs.component';
     ProfileComponent,
     JournalQueueComponent,
     AboutComponent,
+    AboutOverviewComponent,
+    AboutIntegrationsComponent,
+    AboutGovernanceComponent,
+    AboutPoliciesComponent,
+    AboutNewsComponent,
     HelpComponent,
     ApiDocsComponent,
   ],

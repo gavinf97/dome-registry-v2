@@ -14,24 +14,6 @@ import { Component } from '@angular/core';
       </div>
     </section>
 
-    <!-- Page tabs: About | Help -->
-    <div class="bg-white border-bottom sticky-top shadow-sm" style="top:0;z-index:100">
-      <div class="container">
-        <ul class="nav nav-tabs border-0 gap-1 py-1">
-          <li class="nav-item">
-            <a class="nav-link page-tab" routerLink="/about">
-              <i class="bi bi-info-circle me-1"></i>About
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link page-tab active fw-semibold" routerLink="/help">
-              <i class="bi bi-question-circle me-1"></i>Help
-            </a>
-          </li>
-        </ul>
-      </div>
-    </div>
-
     <!-- How to Use -->
     <section id="how-to-use" class="py-5 bg-light">
       <div class="container">
