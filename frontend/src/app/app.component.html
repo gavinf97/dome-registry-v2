@@ -31,15 +31,11 @@
             </li>
             <!-- Submit: always visible; pages guard content if not logged in -->
             <li class="nav-item">
-              <a class="nav-link" routerLink="/registry/new" [routerLinkActive]="['active']">
-                <i class="bi bi-pencil-square me-1"></i>Submit
-              </a>
+              <a class="nav-link" routerLink="/registry/new" [routerLinkActive]="['active']">Submit</a>
             </li>
             <!-- AI Import: always visible -->
             <li class="nav-item">
-              <a class="nav-link" routerLink="/upload" [routerLinkActive]="['active']">
-                <i class="bi bi-robot me-1"></i>AI Import
-              </a>
+              <a class="nav-link" routerLink="/upload" [routerLinkActive]="['active']">DOME Copilot</a>
             </li>
             <li class="nav-item" *ngIf="auth.hasRole('journal_owner')">
               <a class="nav-link" routerLink="/journal-queue" [routerLinkActive]="['active']">
@@ -145,7 +141,7 @@
             </li>
             <li class="mb-2">
               <a routerLink="/upload" class="text-white text-decoration-none footer-link">
-                <i class="bi bi-robot me-2" style="opacity:.7"></i>AI Import
+                <i class="bi bi-robot me-2" style="opacity:.7"></i>DOME Copilot
               </a>
             </li>
           </ul>

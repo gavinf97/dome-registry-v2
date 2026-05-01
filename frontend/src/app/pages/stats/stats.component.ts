@@ -128,17 +128,13 @@ interface StatsData {
               <div class="card-header bg-transparent border-bottom fw-semibold small text-uppercase text-muted py-2">
                 <i class="bi bi-calendar3 me-2"></i>Entries by Publication Year
               </div>
-              <div class="card-body">
-                <div *ngFor="let y of stats.byYear" class="mb-2">
-                  <div class="d-flex justify-content-between small mb-1">
-                    <span class="fw-semibold">{{ y.year }}</span>
-                    <span class="text-muted">{{ y.count }}</span>
-                  </div>
-                  <div class="rounded-pill overflow-hidden" style="height:14px;background:#e9ecef">
-                    <div class="rounded-pill bg-primary"
-                      [style.width.%]="maxYear ? (y.count / maxYear * 100) : 0"
-                      style="height:14px;transition:width .4s;opacity:.8"></div>
-                  </div>
+              <div class="card-body d-flex align-items-end justify-content-around pt-4 pb-2 px-3" style="height: 250px;">
+                <div *ngFor="let y of stats.byYear" class="d-flex flex-column align-items-center h-100 w-100 mx-1">
+                  <div class="mt-auto small fw-bold text-primary mb-1">{{ y.count }}</div>
+                  <div class="w-100 bg-primary rounded-top"
+                       [style.height.%]="maxYear ? (y.count / maxYear * 75) : 0"
+                       style="opacity: 0.8; transition: height .4s; min-height: 4px;"></div>
+                  <div class="small text-muted mt-2" style="font-size: 0.75rem;">{{ y.year }}</div>
                 </div>
               </div>
             </div>
@@ -149,7 +145,7 @@ interface StatsData {
               <div class="card-header bg-transparent border-bottom fw-semibold small text-uppercase text-muted py-2">
                 <i class="bi bi-journal-text me-2"></i>Top Journals
               </div>
-              <div class="card-body">
+              <div class="card-body overflow-auto" style="max-height: 250px;">
                 <div *ngFor="let j of stats.topJournals" class="mb-2">
                   <div class="d-flex justify-content-between small mb-1">
                     <span class="text-truncate fw-semibold" style="max-width:75%">{{ j.journal }}</span>
@@ -173,7 +169,7 @@ interface StatsData {
               <div class="card-header bg-transparent border-bottom fw-semibold small text-uppercase text-muted py-2">
                 <i class="bi bi-tags me-2"></i>Top Tags
               </div>
-              <div class="card-body">
+              <div class="card-body overflow-auto" style="max-height: 400px;">
                 <div *ngFor="let t of stats.topTags" class="mb-2">
                   <div class="d-flex align-items-center gap-2 mb-1">
                     <span class="badge bg-secondary flex-shrink-0">{{ t.tag }}</span>
@@ -191,17 +187,17 @@ interface StatsData {
           </div>
 
           <div class="col-lg-7">
-            <div class="card border-0 shadow-sm">
+            <div class="card border-0 shadow-sm h-100">
               <div class="card-header bg-transparent border-bottom fw-semibold small text-uppercase text-muted py-2">
                 <i class="bi bi-clock-history me-2"></i>Recent Public Entries
               </div>
-              <div class="list-group list-group-flush">
+              <div class="list-group list-group-flush overflow-auto" style="max-height: 400px;">
                 <a *ngFor="let e of stats.recentEntries"
                   [routerLink]="['/registry', e.shortid || e.uuid]"
                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-2 px-3">
-                  <div class="flex-grow-1 min-w-0">
-                    <div class="d-flex align-items-center gap-2">
-                      <span class="small fw-semibold text-truncate">{{ e.title || '(untitled)' }}</span>
+                  <div class="flex-grow-1" style="min-width: 0;">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                      <div class="small fw-semibold text-truncate">{{ e.title || '(untitled)' }}</div>
                       <span *ngIf="e.isAiGenerated"
                         class="badge rounded-pill flex-shrink-0"
                         style="background:linear-gradient(90deg,#7c3aed,#2563eb);color:#fff;font-size:0.65rem">
