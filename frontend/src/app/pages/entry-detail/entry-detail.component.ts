@@ -99,6 +99,9 @@ import { combineLatest } from 'rxjs';
             schema {{ entry.schemaVersion }}
           </span>
           <div class="ms-auto d-flex gap-2">
+            <button class="btn btn-sm btn-outline-secondary" (click)="downloadJson()" title="Download full schema JSON">
+              <i class="bi bi-download me-1"></i>JSON
+            </button>
             <a *ngIf="canEdit" [routerLink]="['/registry', entry.uuid, 'edit']"
               class="btn btn-sm btn-outline-primary">
               <i class="bi bi-pencil me-1"></i>Edit
@@ -121,15 +124,15 @@ import { combineLatest } from 'rxjs';
             <h6 class="text-uppercase text-muted small fw-bold border-bottom pb-2 mt-3">{{ sub.label }}</h6>
             <dl class="row mb-0">
               <ng-container *ngFor="let field of sub.fields">
-                <ng-container *ngIf="getFieldValue(entry, field) as val">
-                  <dt class="col-sm-4 col-lg-3 text-muted small fw-normal">
-                    {{ field.label }}
-                    <span *ngIf="field.complianceLevel === 'REQUIREMENT'"
-                      class="badge badge-requirement ms-1" style="font-size:0.6rem">R</span>
-                    <span *ngIf="field.complianceLevel === 'RECOMMENDATION'"
-                      class="badge badge-recommendation ms-1" style="font-size:0.6rem">REC</span>
-                  </dt>
-                  <dd class="col-sm-8 col-lg-9">
+                <dt class="col-sm-4 col-lg-3 text-muted small fw-normal">
+                  {{ field.label }}
+                  <span *ngIf="field.complianceLevel === 'REQUIREMENT'"
+                    class="badge badge-requirement ms-1" style="font-size:0.6rem">R</span>
+                  <span *ngIf="field.complianceLevel === 'RECOMMENDATION'"
+                    class="badge badge-recommendation ms-1" style="font-size:0.6rem">REC</span>
+                </dt>
+                <dd class="col-sm-8 col-lg-9">
+                  <ng-container *ngIf="getFieldValue(entry, field) as val; else notReported">
 
                     <!-- Array values as chips -->
                     <span *ngIf="isArray(val)">
@@ -154,8 +157,11 @@ import { combineLatest } from 'rxjs';
                     <!-- Plain text -->
                     <span *ngIf="!isArray(val) && val !== true && val !== false && !isUrl(val)">{{ val }}</span>
 
-                  </dd>
-                </ng-container>
+                  </ng-container>
+                  <ng-template #notReported>
+                    <span class="text-muted fst-italic" style="font-size:.85rem">Not reported</span>
+                  </ng-template>
+                </dd>
               </ng-container>
             </dl>
           </ng-container>
@@ -209,6 +215,48 @@ export class EntryDetailComponent implements OnInit {
 
   isArray(val: unknown): boolean { return Array.isArray(val); }
   asArray(val: unknown): unknown[] { return val as unknown[]; }
+
+  downloadJson(): void {
+    if (!this.entry) return;
+
+    // Build provenance block
+    const doc: Record<string, unknown> = {
+      uuid: this.entry.uuid,
+      shortid: this.entry.shortid,
+      schemaVersion: this.entry.schemaVersion,
+      isAiGenerated: this.entry.isAiGenerated,
+      score: this.entry.score,
+      user: this.entry.user,
+      created: this.entry.created,
+      updated: this.entry.updated,
+      data: {},
+    };
+
+    // Deep-merge all schema fields (null for missing)
+    for (const section of this.sections) {
+      for (const sub of section.subsections) {
+        for (const field of sub.fields) {
+          const val = this.getFieldValue(this.entry, field);
+          // Build nested path into doc.data
+          const parts = field.path.split('.');
+          let cursor: any = doc['data'];
+          for (let i = 0; i < parts.length - 1; i++) {
+            if (!cursor[parts[i]]) cursor[parts[i]] = {};
+            cursor = cursor[parts[i]];
+          }
+          cursor[parts[parts.length - 1]] = val ?? null;
+        }
+      }
+    }
+
+    const blob = new Blob([JSON.stringify(doc, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'dome-' + (this.entry.shortid ?? this.entry.uuid) + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
   isUrl(val: unknown): boolean {
     if (typeof val !== 'string') return false;

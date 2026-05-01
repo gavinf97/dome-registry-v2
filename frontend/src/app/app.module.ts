@@ -22,6 +22,7 @@ import { StatsComponent } from './pages/stats/stats.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { JournalQueueComponent } from './pages/journal-queue/journal-queue.component';
 import { AboutComponent } from './pages/about/about.component';
+import { ApiDocsComponent } from './pages/api-docs/api-docs.component';
 
 @NgModule({
   declarations: [
@@ -40,6 +41,7 @@ import { AboutComponent } from './pages/about/about.component';
     ProfileComponent,
     JournalQueueComponent,
     AboutComponent,
+    ApiDocsComponent,
   ],
   imports: [
     BrowserModule,

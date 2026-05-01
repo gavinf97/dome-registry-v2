@@ -13,6 +13,7 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { JournalQueueComponent } from './pages/journal-queue/journal-queue.component';
 import { AuthGuard, AdminGuard } from './auth/auth.guard';
 import { AboutComponent } from './pages/about/about.component';
+import { ApiDocsComponent } from './pages/api-docs/api-docs.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -22,6 +23,7 @@ const routes: Routes = [
   { path: 'search', component: SearchComponent },
   { path: 'stats', component: StatsComponent },
   { path: 'about', component: AboutComponent },
+  { path: 'api-docs', component: ApiDocsComponent },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: 'journal-queue', component: JournalQueueComponent, canActivate: [AuthGuard] },
   { path: 'upload', component: UploadComponent },
