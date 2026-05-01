@@ -262,7 +262,7 @@ export class SearchComponent implements OnInit {
   total   = 0;
   loading = false;
   page    = 0;
-  limit   = 20;
+  limit   = 10;
 
   get totalPages(): number { return Math.ceil(this.total / this.limit); }
 
