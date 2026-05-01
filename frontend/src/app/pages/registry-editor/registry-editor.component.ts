@@ -46,13 +46,9 @@ function buildFormGroupFromSchema(sections: SectionDef[], fb: FormBuilder): Form
       <div class="card border-0 shadow-sm text-center p-5">
         <i class="bi bi-pencil-square fs-1 mb-3 text-primary"></i>
         <h3 class="fw-bold mb-2">Submit a Paper</h3>
-        <p class="text-muted mb-1">
+        <p class="text-muted mb-4">
           Fill in the DOME annotation form to add your published machine learning paper
           to the registry. Each field is guided by the DOME checklist.
-        </p>
-        <p class="text-muted mb-4">
-          You need to be signed in with your ORCID iD to submit or edit entries. ORCID
-          is used to track contribution provenance.
         </p>
         <button class="btn btn-orcid d-inline-flex align-items-center gap-2 mx-auto" (click)="auth.login()">
           <img src="assets/orcid.svg" alt="ORCID" style="height:1.2rem;width:1.2rem">

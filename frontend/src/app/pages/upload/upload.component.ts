@@ -27,9 +27,9 @@ interface SelectedFile {
     <div *ngIf="!auth.isLoggedIn()" class="container py-5" style="max-width:600px">
       <div class="card border-0 shadow-sm text-center p-5">
         <i class="bi bi-robot fs-1 mb-3" style="color:#7b2ff7"></i>
-        <h3 class="fw-bold mb-2">AI Import from PDF</h3>
+        <h3 class="fw-bold mb-2">DOME Copilot from PDF</h3>
         <p class="text-muted mb-4">
-          Upload your paper PDF and the DOME AI Copilot will extract structured
+          Upload your paper PDF and the DOME Copilot will extract structured
           annotations automatically. Sign in to continue.
         </p>
         <button class="btn btn-orcid d-inline-flex align-items-center gap-2 mx-auto" (click)="auth.login()">
@@ -37,10 +37,10 @@ interface SelectedFile {
           Sign in with ORCID to continue
         </button>
         <div class="mt-4 pt-3 border-top">
-          <a routerLink="/about" class="small text-decoration-none me-3">
-            <i class="bi bi-info-circle me-1"></i>How does AI Import work?
+          <a routerLink="/about" class="btn btn-outline-secondary btn-sm me-2">
+            <i class="bi bi-question-circle me-1"></i>How does DOME Copilot work?
           </a>
-          <a routerLink="/help/docs" class="small text-decoration-none">
+          <a routerLink="/help/docs" class="btn btn-outline-primary btn-sm">
             <i class="bi bi-code-square me-1"></i>API Documentation
           </a>
         </div>
@@ -50,18 +50,18 @@ interface SelectedFile {
     <!-- ── Stage: Upload ──────────────────────────────────────────── -->
     <div *ngIf="auth.isLoggedIn() && stage === 'upload'" class="container py-5" style="max-width:760px">
       <div class="d-flex align-items-start gap-3 mb-1 flex-wrap">
-        <h2 class="mb-0">AI Import from PDF</h2>
+        <h2 class="mb-0">DOME Copilot from PDF</h2>
         <div class="ms-auto d-flex gap-2 flex-shrink-0">
           <a routerLink="/about" class="btn btn-sm btn-outline-secondary">
-            <i class="bi bi-question-circle me-1"></i>How it works
+            <i class="bi bi-question-circle me-1"></i>How does DOME Copilot work?
           </a>
-          <a routerLink="/help/docs" class="btn btn-sm btn-outline-secondary">
+          <a routerLink="/help/docs" class="btn btn-sm btn-outline-primary">
             <i class="bi bi-code-square me-1"></i>API Documentation
           </a>
         </div>
       </div>
       <p class="text-muted mb-4">
-        Upload your paper PDF. The AI Copilot reads the text and pre-fills all DOME fields.
+        Upload your paper PDF. The DOME Copilot reads the text and pre-fills all DOME fields.
         You review and correct everything before submitting.
       </p>
 
