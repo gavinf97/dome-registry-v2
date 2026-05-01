@@ -28,7 +28,7 @@ interface StatsData {
       <ng-container *ngIf="!loading && stats">
 
         <!-- KPI strip -->
-        <div class="row g-3 mb-4">
+        <div class="row g-4 mb-5">
           <div class="col-6 col-lg-3">
             <div class="card border-0 shadow-sm text-center h-100">
               <div class="card-body py-3">
@@ -66,7 +66,7 @@ interface StatsData {
         </div>
 
         <!-- Row 1: Score distribution + Status -->
-        <div class="row g-3 mb-3">
+        <div class="row g-4 mb-5">
           <div class="col-lg-6">
             <div class="card border-0 shadow-sm h-100">
               <div class="card-header bg-transparent border-bottom fw-semibold small text-uppercase text-muted py-2">
@@ -122,19 +122,38 @@ interface StatsData {
         </div>
 
         <!-- Row 2: By year + Top journals -->
-        <div class="row g-3 mb-3">
+        <div class="row g-4 mb-5">
           <div class="col-lg-6" *ngIf="stats.byYear?.length">
             <div class="card border-0 shadow-sm h-100">
               <div class="card-header bg-transparent border-bottom fw-semibold small text-uppercase text-muted py-2">
                 <i class="bi bi-calendar3 me-2"></i>Entries by Publication Year
               </div>
-              <div class="card-body d-flex align-items-end justify-content-around pt-4 pb-2 px-3" style="height: 250px;">
-                <div *ngFor="let y of stats.byYear" class="d-flex flex-column align-items-center h-100 w-100 mx-1">
-                  <div class="mt-auto small fw-bold text-primary mb-1">{{ y.count }}</div>
-                  <div class="w-100 bg-primary rounded-top"
-                       [style.height.%]="maxYear ? (y.count / maxYear * 75) : 0"
-                       style="opacity: 0.8; transition: height .4s; min-height: 4px;"></div>
-                  <div class="small text-muted mt-2" style="font-size: 0.75rem;">{{ y.year }}</div>
+              <div class="card-body overflow-auto pt-4 pb-2 px-3" style="height: 250px;">
+                <div class="position-relative h-100" [style.min-width.px]="stats.byYear.length * 60">
+                  <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="position-absolute top-0 start-0 w-100 h-100" style="overflow:visible;">
+                    <!-- Baseline -->
+                    <line x1="0" y1="92" x2="100" y2="92" stroke="#e9ecef" stroke-width="1" vector-effect="non-scaling-stroke" />
+                    <!-- Line Graph -->
+                    <polyline [attr.points]="svgLinePoints" fill="none" stroke="#003958" stroke-width="2" vector-effect="non-scaling-stroke" />
+                    <!-- Data Points -->
+                    <circle *ngFor="let pt of svgPoints" [attr.cx]="pt.x" [attr.cy]="pt.y" r="2.5" fill="#F66729" vector-effect="non-scaling-stroke" />
+                  </svg>
+                  
+                  <!-- Overlays -->
+                  <div class="position-absolute w-100 h-100 top-0 start-0 pe-none">
+                     <div *ngFor="let pt of svgPoints" 
+                          class="position-absolute d-flex flex-column align-items-center"
+                          [style.left.%]="pt.x" [style.top.%]="pt.y"
+                          style="transform: translate(-50%, -100%); margin-top: -6px;">
+                        <span class="small fw-bold" style="color: #003958">{{ pt.val }}</span>
+                     </div>
+                     <div *ngFor="let pt of svgPoints" 
+                          class="position-absolute text-center text-muted"
+                          [style.left.%]="pt.x"
+                          style="top: 94%; transform: translateX(-50%); font-size: 0.75rem;">
+                        {{ pt.label }}
+                     </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -163,8 +182,8 @@ interface StatsData {
         </div>
 
         <!-- Row 3: Tags + Recent entries -->
-        <div class="row g-3">
-          <div class="col-lg-5" *ngIf="stats.topTags?.length">
+        <div class="row g-4">
+          <div class="col-lg-6" *ngIf="stats.topTags?.length">
             <div class="card border-0 shadow-sm h-100">
               <div class="card-header bg-transparent border-bottom fw-semibold small text-uppercase text-muted py-2">
                 <i class="bi bi-tags me-2"></i>Top Tags
@@ -186,7 +205,7 @@ interface StatsData {
             </div>
           </div>
 
-          <div class="col-lg-7">
+          <div class="col-lg-6">
             <div class="card border-0 shadow-sm h-100">
               <div class="card-header bg-transparent border-bottom fw-semibold small text-uppercase text-muted py-2">
                 <i class="bi bi-clock-history me-2"></i>Recent Public Entries
@@ -232,6 +251,23 @@ export class StatsComponent implements OnInit {
     return Math.max(...(this.stats?.topJournals?.map(j => j.count) ?? [1]));
   }
 
+  get svgPoints(): { x: number, y: number, label: string, val: number }[] {
+    if (!this.stats?.byYear?.length) return [];
+    const pts: { x: number, y: number, label: string, val: number }[] = [];
+    const len = this.stats.byYear.length;
+    const max = this.maxYear || 1;
+    this.stats.byYear.forEach((y, i) => {
+      const x = len === 1 ? 50 : 5 + (i / (len - 1)) * 90;
+      const yPos = 85 - (y.count / max) * 75;
+      pts.push({ x, y: yPos, label: y.year, val: y.count });
+    });
+    return pts;
+  }
+
+  get svgLinePoints(): string {
+    return this.svgPoints.map(p => `${p.x},${p.y}`).join(' ');
+  }
+
   statusEntries(): [string, number][] {
     return Object.entries(this.stats?.byStatus ?? {}).sort((a, b) => b[1] - a[1]);
   }
@@ -251,7 +287,22 @@ export class StatsComponent implements OnInit {
 
   ngOnInit(): void {
     this.http.get<StatsData>('/api/registry/stats').subscribe({
-      next: data => { this.stats = data; this.loading = false; },
+      next: data => { 
+        if (data.byYear) {
+           const yearMap = new Map<number, number>();
+           for (const y of data.byYear) {
+             const parsed = parseInt(String(y.year).trim(), 10);
+             if (!isNaN(parsed)) {
+               yearMap.set(parsed, (yearMap.get(parsed) || 0) + y.count);
+             }
+           }
+           data.byYear = Array.from(yearMap.entries())
+             .map(([year, count]) => ({ year: year.toString(), count }))
+             .sort((a, b) => parseInt(String(a.year), 10) - parseInt(String(b.year), 10));
+        }
+        this.stats = data; 
+        this.loading = false; 
+      },
       error: () => { this.loading = false; },
     });
   }
