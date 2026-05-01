@@ -9,7 +9,7 @@ import { Component } from '@angular/core';
           Structure &amp; Oversight
         </div>
         <h2 class="h3 fw-bold mb-2">Governance</h2>
-        <p class="text-muted mb-5" style="max-width:800px">
+        <p class="text-muted mb-5">
           DOME's development is guided by a transparent governance model integrating advice from
           a formal Scientific Advisory Board, continuous input from key ELIXIR groups, and feedback
           from publishers, industry, and ML experts.
@@ -25,20 +25,27 @@ import { Component } from '@angular/core';
           </p>
           <div class="row g-4">
             <div *ngFor="let m of sabMembers" class="col-md-4">
-              <div class="card border-0 shadow-sm h-100 text-center p-4">
+              <div class="card border shadow-sm h-100 text-center p-4 d-flex flex-column">
                 <div class="mb-3">
-                  <div class="sab-avatar mx-auto d-flex align-items-center justify-content-center rounded-circle"
-                       style="width:4rem;height:4rem;background:rgba(0,57,88,.1)">
-                    <i class="bi bi-person fs-3 text-primary"></i>
+                  <div class="sab-avatar mx-auto d-flex align-items-center justify-content-center rounded-circle overflow-hidden"
+                       style="width:5rem;height:5rem;background:rgba(0,57,88,.1)">
+                    <img *ngIf="m.img" [src]="m.img" [alt]="m.name" style="width:100%;height:100%;object-fit:cover">
+                    <i *ngIf="!m.img" class="bi bi-person fs-3 text-primary"></i>
                   </div>
                 </div>
                 <div class="fw-bold mb-1">{{ m.name }}</div>
-                <div class="text-muted small mb-1">{{ m.affiliation }}</div>
-                <div class="badge bg-light text-secondary border small mb-2">{{ m.expertise }}</div>
-                <div>
+                <div class="text-muted small mb-2">{{ m.affiliation }}</div>
+                <div class="mb-3">
+                  <span class="badge rounded-pill px-3 py-2" 
+                        style="background:rgba(0,57,88,.08);color:#003958;font-weight:600;font-size:0.75rem;">
+                    {{ m.expertise }}
+                  </span>
+                </div>
+                <div class="mt-auto">
                   <a [href]="m.orcid" target="_blank" rel="noopener"
-                     class="btn btn-outline-secondary btn-sm">
-                    <img src="assets/orcid.svg" alt="ORCID" style="height:.9rem;opacity:.7"> ORCID
+                     class="btn btn-light border btn-sm px-3 d-inline-flex align-items-center justify-content-center"
+                     style="height:32px;">
+                    <img src="assets/orcid.svg" alt="ORCID" style="height:1.1rem;display:block">
                   </a>
                 </div>
               </div>
@@ -68,7 +75,7 @@ import { Component } from '@angular/core';
                     Provides crucial input on the practical needs of researchers applying AI/ML,
                     ensuring DOME features remain relevant to scientific practice.
                   </p>
-                  <a href="https://elixir-europe.org/focus-groups/machine-learning" target="_blank"
+                  <a href="https://elixir-europe.org/focus-groups/ai-ecosystem" target="_blank"
                      rel="noopener" class="btn btn-outline-primary btn-sm">
                     <i class="bi bi-box-arrow-up-right me-1"></i>Learn More
                   </a>
@@ -120,18 +127,21 @@ export class AboutGovernanceComponent {
       affiliation: 'Boehringer Ingelheim',
       expertise: 'Industry & Interoperability',
       orcid: 'https://orcid.org/0000-0002-2548-641X',
+      img: 'assets/sira_0.jpg'
     },
     {
       name: 'Daniel Garijo',
       affiliation: 'Universidad Politécnica de Madrid',
       expertise: 'Academia, AI & Ontologies',
       orcid: 'https://orcid.org/0000-0003-0454-7145',
+      img: 'assets/daniel.png'
     },
     {
       name: 'Chris Hunter',
-      affiliation: 'GigaScience & GigaDB',
+      affiliation: 'University of Exeter',
       expertise: 'Publishing & Open Science',
       orcid: 'https://orcid.org/0000-0002-1335-0881',
+      img: 'assets/Christopher-Hunter.png'
     },
   ];
 }
