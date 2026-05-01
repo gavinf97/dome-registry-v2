@@ -40,6 +40,7 @@ interface HomeStats {
       </div>
     </section>
 
+    <div class="section-sep"></div>
     <!-- ── Stats strip ────────────────────────────────────────────────── -->
     <section class="bg-primary text-white py-3">
       <div class="container">
