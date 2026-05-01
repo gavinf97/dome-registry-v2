@@ -37,10 +37,23 @@ import { RegistryEntry } from '../../models/registry.models';
                 <input type="text" class="form-control form-control-sm" placeholder="e.g. protein, RNA" [formControl]="tagCtrl" />
               </div>
 
-              <!-- Year -->
+              <!-- Year Range -->
               <div class="mb-3">
-                <label class="form-label small fw-semibold text-muted">Publication Year</label>
-                <input type="text" class="form-control form-control-sm" placeholder="e.g. 2022" [formControl]="yearCtrl" />
+                <label class="form-label small fw-semibold text-muted w-100 d-flex justify-content-between mb-0">
+                  <span>Publication Year</span>
+                  <span class="text-primary fw-bold">{{ minYearCtrl.value }} – {{ maxYearCtrl.value }}</span>
+                </label>
+                <div class="position-relative mt-2 mb-4" style="height: 24px;">
+                  <div class="position-absolute w-100 bg-secondary rounded-pill" style="top: 10px; height: 4px; opacity: 0.2;"></div>
+                  <div class="position-absolute bg-primary rounded-pill" 
+                       [style.left.%]="((minYearCtrl.value - 2000) / (currentYear - 2000)) * 100" 
+                       [style.right.%]="100 - ((maxYearCtrl.value - 2000) / (currentYear - 2000)) * 100" 
+                       style="top: 10px; height: 4px;"></div>
+                  <input type="range" class="form-range position-absolute w-100 m-0 custom-range-slider" 
+                         [min]="2000" [max]="currentYear" [formControl]="minYearCtrl" style="top: 2px;">
+                  <input type="range" class="form-range position-absolute w-100 m-0 custom-range-slider" 
+                         [min]="2000" [max]="currentYear" [formControl]="maxYearCtrl" style="top: 2px;">
+                </div>
               </div>
 
               <!-- Journal -->
@@ -128,9 +141,9 @@ import { RegistryEntry } from '../../models/registry.models';
               <i class="bi bi-tag me-1"></i>{{ tagCtrl.value }}
               <button class="btn-close ms-1" style="font-size:0.5rem" (click)="tagCtrl.setValue('')"></button>
             </span>
-            <span *ngIf="yearCtrl.value" class="badge bg-light text-dark border rounded-pill">
-              <i class="bi bi-calendar3 me-1"></i>{{ yearCtrl.value }}
-              <button class="btn-close ms-1" style="font-size:0.5rem" (click)="yearCtrl.setValue('')"></button>
+            <span *ngIf="minYearCtrl.value > 2000 || maxYearCtrl.value < currentYear" class="badge bg-light text-dark border rounded-pill">
+              <i class="bi bi-calendar3 me-1"></i>{{ minYearCtrl.value }} – {{ maxYearCtrl.value }}
+              <button class="btn-close ms-1" style="font-size:0.5rem" (click)="resetYearFilter()"></button>
             </span>
             <span *ngIf="journalCtrl.value" class="badge bg-light text-dark border rounded-pill">
               <i class="bi bi-journal-text me-1"></i>{{ journalCtrl.value }}
@@ -247,6 +260,22 @@ import { RegistryEntry } from '../../models/registry.models';
   styles: [`
     .list-group-item { transition: background 0.15s; }
     .list-group-item:hover { background: #f8f9fa; }
+    .custom-range-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+      pointer-events: none;
+    }
+    .custom-range-slider::-webkit-slider-thumb {
+      pointer-events: all;
+      position: relative;
+      z-index: 10;
+    }
+    .custom-range-slider::-moz-range-thumb {
+      pointer-events: all;
+      position: relative;
+      z-index: 10;
+    }
   `],
 })
 export class SearchComponent implements OnInit {
@@ -255,7 +284,9 @@ export class SearchComponent implements OnInit {
   sortCtrl     = new FormControl('');
   minScoreCtrl = new FormControl(0);
   aiCtrl       = new FormControl('');
-  yearCtrl     = new FormControl('');
+  currentYear  = new Date().getFullYear();
+  minYearCtrl  = new FormControl(2000, {nonNullable: true});
+  maxYearCtrl  = new FormControl(this.currentYear, {nonNullable: true});
   journalCtrl  = new FormControl('');
 
   entries: RegistryEntry[] = [];
@@ -269,7 +300,8 @@ export class SearchComponent implements OnInit {
   get hasActiveFilters(): boolean {
     return !!(this.searchCtrl.value || this.tagCtrl.value || this.sortCtrl.value ||
               +this.minScoreCtrl.value! > 0 || this.aiCtrl.value ||
-              this.yearCtrl.value || this.journalCtrl.value);
+              this.minYearCtrl.value > 2000 || this.maxYearCtrl.value < this.currentYear ||
+              this.journalCtrl.value);
   }
 
   constructor(private registryService: RegistryService, private route: ActivatedRoute) {}
@@ -278,10 +310,20 @@ export class SearchComponent implements OnInit {
     const preText = this.route.snapshot.queryParamMap.get('text');
     if (preText) { this.searchCtrl.setValue(preText, { emitEvent: false }); }
 
-    const resetAndLoad = () => { this.page = 0; this.load(); };
+    const resetAndLoad = (val?: any) => { this.page = 0; this.load(); };
 
-    [this.searchCtrl, this.tagCtrl, this.yearCtrl, this.journalCtrl].forEach(ctrl =>
+    [this.searchCtrl, this.tagCtrl, this.journalCtrl].forEach(ctrl =>
       ctrl.valueChanges.pipe(debounceTime(350), distinctUntilChanged()).subscribe(resetAndLoad));
+
+    [this.minYearCtrl, this.maxYearCtrl].forEach(ctrl =>
+      ctrl.valueChanges.pipe(debounceTime(350), distinctUntilChanged()).subscribe(resetAndLoad));
+
+    this.minYearCtrl.valueChanges.subscribe(val => {
+      if (val > this.maxYearCtrl.value) this.minYearCtrl.setValue(this.maxYearCtrl.value, { emitEvent: false });
+    });
+    this.maxYearCtrl.valueChanges.subscribe(val => {
+      if (val < this.minYearCtrl.value) this.maxYearCtrl.setValue(this.minYearCtrl.value, { emitEvent: false });
+    });
 
     this.sortCtrl.valueChanges.pipe(debounceTime(150)).subscribe(resetAndLoad);
     this.minScoreCtrl.valueChanges.pipe(debounceTime(150)).subscribe(resetAndLoad);
@@ -301,7 +343,8 @@ export class SearchComponent implements OnInit {
       isAiGenerated: this.aiCtrl.value === 'true'  ? true
                    : this.aiCtrl.value === 'false' ? false
                    : undefined,
-      year:          this.yearCtrl.value    || undefined,
+      minYear:       this.minYearCtrl.value > 2000 ? this.minYearCtrl.value : undefined,
+      maxYear:       this.maxYearCtrl.value < this.currentYear ? this.maxYearCtrl.value : undefined,
       journal:       this.journalCtrl.value || undefined,
       skip:  this.page * this.limit,
       limit: this.limit,
@@ -322,10 +365,16 @@ export class SearchComponent implements OnInit {
     this.sortCtrl.setValue('',    { emitEvent: false });
     this.minScoreCtrl.setValue(0, { emitEvent: false });
     this.aiCtrl.setValue('',      { emitEvent: false });
-    this.yearCtrl.setValue('',    { emitEvent: false });
+    this.resetYearFilter(false);
     this.journalCtrl.setValue('', { emitEvent: false });
     this.page = 0;
     this.load();
+  }
+
+  resetYearFilter(load = true): void {
+    this.minYearCtrl.setValue(2000, { emitEvent: false });
+    this.maxYearCtrl.setValue(this.currentYear, { emitEvent: false });
+    if (load) this.load();
   }
 
   sortLabelFor(val: string): string {

@@ -16,7 +16,8 @@ class SearchQueryDto {
   @IsOptional() @Type(() => Number) @IsNumber() @Min(1) @Max(100) limit?: number;
   @IsOptional() @IsString() sortBy?: string;
   @IsOptional() @Transform(({ value }) => value === 'true') @IsBoolean() isAiGenerated?: boolean;
-  @IsOptional() @IsString() year?: string;
+  @IsOptional() @Type(() => Number) @IsNumber() minYear?: number;
+  @IsOptional() @Type(() => Number) @IsNumber() maxYear?: number;
   @IsOptional() @IsString() journal?: string;
 }
 

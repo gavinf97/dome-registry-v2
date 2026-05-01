@@ -86,13 +86,19 @@ export class RegistryService {
     limit?: number;
     sortBy?: string;
     isAiGenerated?: boolean;
-    year?: string;
+    minYear?: number;
+    maxYear?: number;
     journal?: string;
   }): Promise<{ items: RegistryEntryDocument[]; total: number }> {
     const filter: Record<string, unknown> = {};
 
     if (query.text) {
-      filter['$text'] = { $search: query.text };
+      const regex = { $regex: query.text, $options: 'i' };
+      filter['$or'] = [
+        { 'publication.title': regex },
+        { 'publication.authors': regex },
+        { 'tags': regex }
+      ];
     }
     if (query.tags?.length) {
       filter['tags'] = { $in: query.tags };
@@ -114,8 +120,11 @@ export class RegistryService {
     if (query.isAiGenerated !== undefined) {
       filter['isAiGenerated'] = query.isAiGenerated;
     }
-    if (query.year) {
-      filter['publication.year'] = query.year;
+    if (query.minYear !== undefined || query.maxYear !== undefined) {
+      const yearFilter: Record<string, string> = {};
+      if (query.minYear !== undefined) yearFilter.$gte = query.minYear.toString();
+      if (query.maxYear !== undefined) yearFilter.$lte = query.maxYear.toString();
+      filter['publication.year'] = yearFilter;
     }
     if (query.journal) {
       filter['publication.journal'] = { $regex: query.journal, $options: 'i' };

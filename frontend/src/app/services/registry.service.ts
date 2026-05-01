@@ -12,7 +12,8 @@ export interface SearchParams {
   sortBy?: string;         // 'created' | 'oldest' | 'score'
   isAiGenerated?: boolean; // true = AI only, false = human only
   minScore?: number;
-  year?: string;
+  minYear?: number;
+  maxYear?: number;
   journal?: string;
   skip?: number;
   limit?: number;
@@ -37,7 +38,8 @@ export class RegistryService {
     if (params.sortBy) p = p.set('sortBy', params.sortBy);
     if (params.isAiGenerated !== undefined) p = p.set('isAiGenerated', String(params.isAiGenerated));
     if (params.minScore !== undefined) p = p.set('minScore', String(params.minScore));
-    if (params.year) p = p.set('year', params.year);
+    if (params.minYear !== undefined) p = p.set('minYear', String(params.minYear));
+    if (params.maxYear !== undefined) p = p.set('maxYear', String(params.maxYear));
     if (params.journal) p = p.set('journal', params.journal);
     if (params.skip !== undefined) p = p.set('skip', String(params.skip));
     if (params.limit !== undefined) p = p.set('limit', String(params.limit));
