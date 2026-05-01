@@ -341,7 +341,7 @@ export class AboutOverviewComponent {
 
   scoreBands = [
     { label: '≥ 75', color: '#198754', title: 'High compliance', desc: 'Comprehensive DOME reporting across all four pillars.' },
-    { label: '40–75', color: '#fd7e14', title: 'Partial compliance', desc: 'Key fields present; some areas need improvement.' },
+    { label: '40–75', color: '#ffc107', title: 'Partial compliance', desc: 'Key fields present; some areas need improvement.' },
     { label: '< 40', color: '#dc3545', title: 'Low compliance', desc: 'Many required fields are missing or undocumented.' },
   ];
 }

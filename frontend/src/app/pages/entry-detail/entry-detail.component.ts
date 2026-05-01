@@ -263,14 +263,11 @@ export class EntryDetailComponent implements OnInit {
     return val.startsWith('http://') || val.startsWith('https://');
   }
 
-  /** Interpolate score colour red → orange → teal */
+  /** Traffic-light score bands: red <40, yellow 40–74, green ≥75 */
   scoreColor(score: number): string {
-    const s = Math.max(0, Math.min(100, score ?? 0));
-    if (s < 50) {
-      return `rgb(220,${Math.round((s / 50) * 120)},53)`;
-    }
-    const g = 120 + Math.round(((s - 50) / 50) * 86);
-    const b = Math.round(((s - 50) / 50) * 150);
-    return `rgb(0,${g},${b})`;
+    const s = score ?? 0;
+    if (s >= 75) return '#198754';
+    if (s >= 40) return '#ffc107';
+    return '#dc3545';
   }
 }

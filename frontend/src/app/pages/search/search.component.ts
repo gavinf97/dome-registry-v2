@@ -332,11 +332,11 @@ export class SearchComponent implements OnInit {
     return val === 'score' ? 'Top score' : val === 'oldest' ? 'Oldest' : '';
   }
 
-  /** Traffic-light score bands: red <40, orange 40–74, green ≥75 */
+  /** Traffic-light score bands: red <40, yellow 40–74, green ≥75 */
   scoreColor(score: number): string {
     const s = score ?? 0;
     if (s >= 75) return '#198754';   // Bootstrap success green
-    if (s >= 40) return '#fd7e14';   // Bootstrap warning orange
+    if (s >= 40) return '#ffc107';   // Bootstrap warning yellow
     return '#dc3545';                // Bootstrap danger red
   }
 
