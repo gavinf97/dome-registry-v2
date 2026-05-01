@@ -1,0 +1,451 @@
+# DOME Registry V2 — Copilot Questionnaire
+# Drives per-subsection LLM extraction in inference.py.
+# Each subsection maps to a block of 2–8 fields from the schema.
+# Field keys must match the schema's camelCase leaf names exactly.
+# section_path uses slash-separated notation (matches output key prefix).
+
+# ──────────────────────────────────────────────────────────────────────────────
+# PUBLICATION
+# ──────────────────────────────────────────────────────────────────────────────
+
+publication:
+  name: Publication Details
+  description: Bibliographic metadata for the paper being annotated.
+  questions:
+    - field: title
+      question: What is the exact title of the article or paper?
+      guidance: Usually appears at the very top of the document, before the author list.
+      type: string
+
+    - field: authors
+      question: Who are the authors of this article?
+      guidance: List all contributing authors in full.
+      format: "Surname, Initial format, semicolon-separated. Example: Smith, J; Jones, A; Lee, B"
+      type: string
+
+    - field: journal
+      question: In which journal or conference proceedings was this paper published?
+      guidance: Use the formal journal name only; omit volume/issue/page numbers.
+      type: string
+
+    - field: year
+      question: What is the 4-digit year of publication?
+      guidance: Use the final publication year, not acceptance year.
+      format: "YYYY (4 digits only, e.g. 2023)"
+      type: string
+
+    - field: tags
+      question: What are the best keyword tags for this article?
+      guidance: Provide 3–7 domain-specific or ML-approach tags. Avoid generic terms like 'accuracy'.
+      format: "Array of strings, e.g. [\"protein function\", \"deep learning\", \"benchmark\"]"
+      type: array
+
+# ──────────────────────────────────────────────────────────────────────────────
+# DATA
+# ──────────────────────────────────────────────────────────────────────────────
+
+data/provenance:
+  name: Dataset Provenance
+  description: Origin, volume, and history of the data used.
+  questions:
+    - field: datasetSource
+      question: What is the source of the training/test data? Select all that apply.
+      guidance: "Choose from: database (public repository), publication (from a paper), directExperiment (lab-generated), synthetic (computationally generated), hybrid (multiple sources), other."
+      type: array
+      enum_values: ["database", "publication", "directExperiment", "synthetic", "hybrid", "other"]
+
+    - field: pointsPerClass
+      question: If data are in classes (e.g. positive/negative), how many data points are in each class?
+      guidance: "Extract exact counts like 'Npos=500, Nneg=2000'. If not classification, return null."
+      type: string
+
+    - field: regressionPoints
+      question: If this is a regression task, how many total data points are there?
+      guidance: "Return an integer count or descriptive string like '10,500 real-valued samples'."
+      type: string
+
+    - field: previouslyUsed
+      question: Has this dataset been previously used by other papers or is it a community-recognised benchmark?
+      guidance: Look for citations to established benchmarks or references to prior community use.
+      type: boolean_or_string
+
+data/dataSplits:
+  name: Data Splits
+  description: How the data was partitioned into training, test, and validation sets.
+  questions:
+    - field: trainTestPoints
+      question: How many data points are in the training set and the test set respectively?
+      guidance: Extract exact integer counts. Prioritise raw counts over percentages.
+      type: string
+
+    - field: validationUsed
+      question: Was a separate validation set used (distinct from the test set)?
+      guidance: Look for 'validation set', 'dev set', or held-out validation partition mentions.
+      type: boolean_or_string
+
+    - field: validationSize
+      question: If a validation set was used, how large was it?
+      guidance: Return exact count or percentage as a string.
+      type: string
+
+    - field: distributionsDifferent
+      question: Are the class or label distributions in the training set different from those in the test set?
+      guidance: Look for class imbalance discussion or explicit distribution comparisons.
+      type: boolean_or_string
+
+    - field: distributionsPlotted
+      question: Are the distributions of data types plotted or visualised in the paper?
+      guidance: Look for histograms, bar charts, or tables showing class distributions.
+      type: boolean_or_string
+
+data/redundancy:
+  name: Dataset Independence / Redundancy
+  description: How data leakage and redundancy between sets was handled.
+  questions:
+    - field: splitMethod
+      question: How were the training and test sets split?
+      guidance: "Examples: random split, time-based split, group-based split, clustering, sequence identity threshold."
+      type: string
+
+    - field: setsIndependent
+      question: Are the training and test sets strictly independent (no data leakage)?
+      guidance: Check for statements about overlap prevention or independence guarantees.
+      type: boolean_or_string
+
+    - field: independenceEnforcement
+      question: How was independence enforced between splits?
+      guidance: "Examples: redundancy reduction to less than X% pairwise identity, group-level partitioning."
+      type: string
+
+    - field: distributionComparison
+      question: How does the data distribution compare to previously published ML datasets in this domain?
+      guidance: Look for direct comparisons or references to benchmark dataset characteristics.
+      type: string
+
+data/availability:
+  name: Data Availability
+  description: Whether and where the data used are publicly accessible.
+  questions:
+    - field: isDataPublic
+      question: Are the data (including the specific train/test splits used) released in a public forum?
+      guidance: Check Data Availability, Code Availability, or Supplementary sections.
+      type: boolean_or_string
+
+    - field: dataUrl
+      question: What are the URLs where the data are available?
+      guidance: Extract full URLs starting with http:// or https://. Return as an array.
+      type: array
+
+    - field: dataLicence
+      question: What is the licence for the data?
+      guidance: "Common values: CC-BY 4.0, CC0, MIT, GPL-3.0, Apache-2.0, custom. Return as an array."
+      type: array
+
+# ──────────────────────────────────────────────────────────────────────────────
+# OPTIMIZATION
+# ──────────────────────────────────────────────────────────────────────────────
+
+optimization/algorithm:
+  name: ML Algorithm
+  description: The core machine learning algorithm class and its novelty.
+  questions:
+    - field: algorithmClass
+      question: What class(es) of ML algorithm are used? List all that apply.
+      guidance: "Examples: random forest, support vector machine, convolutional neural network, transformer, gradient boosting, graph neural network, deep learning, logistic regression."
+      type: array
+
+    - field: isAlgorithmNew
+      question: Is the ML algorithm a novel contribution, or is it an application of existing methods?
+      guidance: Answer true if the paper proposes a new architecture or algorithm. False if applying existing tools to a new problem.
+      type: boolean_or_string
+
+    - field: newAlgorithmJustification
+      question: If the algorithm is novel, why was it chosen over well-known alternatives?
+      guidance: Look for justification text when the method is described as new. Return null if not novel.
+      type: string
+
+optimization/metaPredictions:
+  name: Meta-predictions / Ensemble
+  description: Whether the model uses outputs from other ML models as input.
+  questions:
+    - field: usesMetaPredictions
+      question: Does this model use predictions or outputs from other ML algorithms as input features?
+      guidance: Look for ensemble, stacking, meta-learning, or 'combination of predictors' language.
+      type: boolean_or_string
+
+    - field: metaPredictionAlgorithms
+      question: If yes, which algorithms contribute predictions as meta-predictor inputs?
+      guidance: List the specific constituent algorithms. Return null if not applicable.
+      type: array
+
+    - field: metaPredictorIndependence
+      question: Is the training data of the initial predictors independent from the meta-predictor test data?
+      guidance: Look for explicit independence statements or cross-validation scheme descriptions.
+      type: boolean_or_string
+
+optimization/encoding:
+  name: Data Encoding
+  description: How raw data was preprocessed and encoded for the ML algorithm.
+  questions:
+    - field: dataEncodingMethod
+      question: How were the raw data encoded and preprocessed before being input to the ML algorithm?
+      guidance: "Examples: one-hot encoding, normalisation, k-mer vectorisation, BERT embeddings, physicochemical properties, PCA."
+      type: string
+
+optimization/parameters:
+  name: Model Parameters
+  description: The number of learnable parameters and how they were chosen.
+  questions:
+    - field: numberOfParameters
+      question: How many learnable parameters (weights/biases) does the model have?
+      guidance: "Look for statements like '1.2M parameters', '85 million weights'. Do not confuse with hyperparameters."
+      type: string
+
+    - field: parameterSelectionMethod
+      question: How was the model architecture or parameter count selected?
+      guidance: "Examples: grid search, Bayesian optimisation, architecture search, manually tuned, transferred from pretrained model."
+      type: string
+
+optimization/features:
+  name: Input Features
+  description: The number and selection of input features.
+  questions:
+    - field: numberOfFeatures
+      question: How many features are used as input to the model?
+      guidance: "Extract the dimensionality of the input vector. Examples: '512 features', '20 amino acid properties'."
+      type: string
+
+    - field: featureSelectionPerformed
+      question: Was any feature selection or dimensionality reduction performed?
+      guidance: Look for feature importance, recursive feature elimination, PCA, or selection criteria mentioned.
+      type: boolean_or_string
+
+    - field: featureSelectionTrainingOnly
+      question: If feature selection was performed, was it done using the training set only (to prevent data leakage)?
+      guidance: Check for 'nested cross-validation' or statements that selection was done before seeing test data.
+      type: boolean_or_string
+
+optimization/fitting:
+  name: Model Fitting
+  description: Assessment of model complexity versus data volume (over/underfitting).
+  questions:
+    - field: parametersExceedData
+      question: Is the number of model parameters (p) much larger than the number of training data points (N)?
+      guidance: Compare parameter count to training set size. For deep learning models, p >> N is common.
+      type: boolean_or_string
+
+    - field: overfittingPrevention
+      question: How was overfitting ruled out or prevented?
+      guidance: "Examples: dropout, early stopping, cross-validation, regularisation, held-out validation set monitored."
+      type: string
+
+    - field: underfittingPrevention
+      question: Conversely, how was underfitting ruled out (if parameters/features are small relative to training data)?
+      guidance: Look for learning curve analysis or discussion of model capacity adequacy.
+      type: string
+
+optimization/regularization:
+  name: Regularization
+  description: Overfitting-prevention techniques applied during training.
+  questions:
+    - field: regularizationUsed
+      question: Were any regularization or overfitting-prevention techniques applied?
+      guidance: Answer true even if basic techniques like dropout or L2 are mentioned.
+      type: boolean_or_string
+
+    - field: regularizationTechniques
+      question: Which specific regularization techniques were used?
+      guidance: "Examples: L1/L2 weight decay, dropout, batch normalisation, early stopping, data augmentation, label smoothing."
+      type: array
+
+optimization/configAvailability:
+  name: Configuration Availability
+  description: Whether the model configuration, hyperparameters, and model files are publicly available.
+  questions:
+    - field: configReported
+      question: Are the hyperparameter configurations, training schedule, and model files reported or available?
+      guidance: Check for specific hyperparameter tables, config files mentioned, or links to model checkpoints.
+      type: boolean_or_string
+
+    - field: configUrl
+      question: What are the URLs where configuration files or model checkpoints are available?
+      guidance: Extract full URLs. Return as an array. Return null if not reported.
+      type: array
+
+    - field: configLicence
+      question: What is the licence for the released configuration or model files?
+      guidance: "Common values: CC-BY 4.0, MIT, Apache-2.0. Return as an array. Return null if not reported."
+      type: array
+
+# ──────────────────────────────────────────────────────────────────────────────
+# MODEL
+# ──────────────────────────────────────────────────────────────────────────────
+
+model/interpretability:
+  name: Model Interpretability
+  description: Whether the model is interpretable or black-box, and any XAI methods used.
+  questions:
+    - field: interpretabilityType
+      question: Is this model black box, interpretable, or hybrid?
+      guidance: "Deep neural networks are typically 'black box'. Decision trees are 'interpretable'. Combinations are 'hybrid'. Select all that apply."
+      type: array
+      enum_values: ["black box", "interpretable", "hybrid"]
+
+    - field: interpretabilityExamples
+      question: If the model is interpretable or hybrid, what are the clear examples of interpretability provided?
+      guidance: Look for feature importance plots, attention visualisations, or explicit examples of explanations.
+      type: string
+
+    - field: xaiMethods
+      question: Which Explainable AI (XAI) methods are used to interpret the model?
+      guidance: "Examples: SHAP, LIME, feature importance, attention weights, saliency maps, integrated gradients."
+      type: array
+
+model/output:
+  name: Model Output
+  description: The type of prediction the model makes and what it predicts.
+  questions:
+    - field: outputType
+      question: What is the type of output produced by this model? Select all that apply.
+      guidance: "Classification: predicts categories. Regression: predicts continuous values. Generative: generates sequences/images. Clustering: groups similar items. Other: anything else."
+      type: array
+      enum_values: ["classification", "regression", "generative", "clustering", "other"]
+
+    - field: targetVariable
+      question: What specifically is being predicted? Identify the target variable and include units if applicable.
+      guidance: "Examples: 'protein subcellular localisation (8 classes)', 'binding affinity (kcal/mol)', 'drug toxicity (binary)'."
+      type: string
+
+model/execution:
+  name: Execution Time & Hardware
+  description: Computational cost of training and inference.
+  questions:
+    - field: trainingTime
+      question: How long did training take?
+      guidance: "Look for timing statements like '4 hours on an A100 GPU' or 'training converged in 50 epochs (3 days)'."
+      type: string
+
+    - field: inferenceTime
+      question: How long does a single representative inference take?
+      guidance: "Examples: '2ms per sequence', '100 predictions per second on a single GPU'."
+      type: string
+
+    - field: hardwareUsed
+      question: What hardware was used for training and/or inference timings?
+      guidance: "Examples: 'NVIDIA A100 80GB', 'Intel Xeon CPU', '4× V100 GPUs', 'Google TPU v3'."
+      type: string
+
+    - field: energyConsumption
+      question: Is the estimated energy consumption for training or inference reported?
+      guidance: Look for kWh, CO2-equivalent, or carbon footprint statements. Return null if not reported.
+      type: string
+
+model/softwareAvailability:
+  name: Software Availability
+  description: Whether the source code, executables, and containers are publicly released.
+  questions:
+    - field: sourceCodeReleased
+      question: Is the source code for this method released publicly?
+      guidance: Look for GitHub, GitLab, Zenodo, or other repository links.
+      type: boolean_or_string
+
+    - field: executableReleased
+      question: Is there a method to run the algorithm without installing the full codebase (executable, web server, Docker container, virtual machine)?
+      guidance: Look for web server URLs, Docker Hub links, or online tools mentioned.
+      type: boolean_or_string
+
+    - field: softwareUrl
+      question: What are the URLs where the source code or executable is available?
+      guidance: Extract all repository or web server URLs. Return as an array.
+      type: array
+
+    - field: softwareLicence
+      question: What is the licence for the released software?
+      guidance: "Common values: MIT, Apache-2.0, GPL-3.0, CC-BY-NC 4.0. Return as an array. Return null if not stated."
+      type: array
+
+# ──────────────────────────────────────────────────────────────────────────────
+# EVALUATION
+# ──────────────────────────────────────────────────────────────────────────────
+
+evaluation/method:
+  name: Evaluation Method
+  description: The strategy used to estimate model performance.
+  questions:
+    - field: evaluationMethod
+      question: How was the model evaluated? Select all evaluation strategies that apply.
+      guidance: "k-fold cross-validation: data split into k folds. Leave-one-out: extreme k-fold. Holdout: single train/test split. Independent external dataset: completely separate external dataset. Novel experiment: prospective wet-lab or real-world validation. Other: any other approach."
+      type: array
+      enum_values: ["kFoldCrossValidation", "leaveOneOut", "holdout", "independentExternalDataset", "novelExperiment", "other"]
+
+evaluation/performanceMeasures:
+  name: Performance Measures
+  description: Metrics used to quantify model performance.
+  questions:
+    - field: performanceMetrics
+      question: Which performance metrics are reported? Select all that apply.
+      guidance: "Map reported metric names to the closest enum value: accuracy, f1Score (F1/F-measure), aucRoc (AUC/ROC), precision, recall (sensitivity/TPR), rmse (RMSE/root mean squared error), mae (MAE/mean absolute error), rSquared (R²), matthewsCorrelationCoefficient (MCC), bleu (BLEU score), rouge (ROUGE score), inceptionScore, frechetInceptionDistance (FID), other."
+      type: array
+      enum_values: ["accuracy", "f1Score", "aucRoc", "precision", "recall", "rmse", "mae", "rSquared", "matthewsCorrelationCoefficient", "bleu", "rouge", "inceptionScore", "frechetInceptionDistance", "other"]
+
+    - field: metricsRepresentative
+      question: Is the set of metrics reported representative compared to what is typically reported in the literature for this type of task?
+      guidance: Look for statements comparing the metric choice to standard practice, or explicit justification.
+      type: boolean_or_string
+
+evaluation/comparison:
+  name: Methods Comparison
+  description: Benchmarking against other methods and baselines.
+  questions:
+    - field: comparisonPublicMethods
+      question: Was the method compared to publicly available state-of-the-art tools on benchmark datasets?
+      guidance: Look for comparison tables, leaderboard mentions, or explicit benchmarking against published methods.
+      type: boolean_or_string
+
+    - field: comparisonBaselines
+      question: Was the method compared to simpler baselines (e.g. random classifier, linear model, majority vote)?
+      guidance: Look for ablation studies or simple baseline comparisons to establish minimum expected performance.
+      type: boolean_or_string
+
+    - field: comparedToolsAndBaselines
+      question: List all specific tools, methods, and baselines the model was compared against.
+      guidance: "Extract all named tools, algorithm names, or model variants used as comparison points. Return as an array."
+      type: array
+
+evaluation/confidence:
+  name: Evaluation Confidence
+  description: Statistical rigour of the performance results.
+  questions:
+    - field: hasConfidenceIntervals
+      question: Are confidence intervals, standard deviations, or standard errors reported for the performance metrics?
+      guidance: Look for ± values, error bars, 95% CI notations, or bootstrap interval mentions.
+      type: boolean_or_string
+
+    - field: statisticallySignificant
+      question: Are the results shown to be statistically significantly better than other methods or baselines?
+      guidance: Look for p-values, Wilcoxon signed-rank tests, t-tests, or explicit significance claims.
+      type: boolean_or_string
+
+    - field: confidenceNumericalValues
+      question: What are the specific numerical values for any reported confidence intervals or p-values?
+      guidance: "Examples: '95% CI: [0.82, 0.91]', 'p < 0.001', 'mean ± std: 0.85 ± 0.03'."
+      type: string
+
+evaluation/evaluationAvailability:
+  name: Evaluation Data Availability
+  description: Whether raw evaluation results and output files are publicly available.
+  questions:
+    - field: rawFilesAvailable
+      question: Are the raw evaluation output files (e.g. prediction scores, confusion matrices) publicly available?
+      guidance: Check supplementary materials, GitHub repositories, or Zenodo deposits for raw output files.
+      type: boolean_or_string
+
+    - field: rawFilesUrl
+      question: What are the URLs where raw evaluation files are available?
+      guidance: Extract full URLs. Return as an array. Return null if not available.
+      type: array
+
+    - field: rawFilesLicence
+      question: What is the licence for any released raw evaluation files?
+      guidance: "Common values: CC-BY 4.0, CC0, MIT. Return as an array. Return null if not stated."
+      type: array

@@ -9,6 +9,7 @@ services:
       dockerfile: backend/Dockerfile.dev
     environment:
       NODE_ENV: development
+      COPILOT_TIMEOUT_MS: 900000   # 15 min — allows 22 subsection calls × ~30s each
     volumes:
       - ./backend/src:/app/src:ro
       - ./schema:/app/schema:ro
@@ -24,6 +25,7 @@ services:
     environment:
       LLM_MODE: local
       OLLAMA_BASE_URL: http://ollama:11434
+      LLM_TIMEOUT_MS: 180000    # 3 min per individual LLM call
     volumes:
       - ./copilot/app:/app/app:ro
       - ./copilot/dome_copilot:/app/dome_copilot:ro
@@ -49,7 +51,7 @@ services:
     # Pull the model on startup; || true means container keeps running even if pull fails
     entrypoint: ["/bin/sh", "-c", "ollama serve & sleep 10 && ollama pull ${OLLAMA_MODEL:-gemma3:4b} || echo '⚠ Model pull failed — check internet/DNS, Copilot will not work until model is available' && wait"]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      test: ["CMD", "ollama", "list"]
       interval: 30s
       timeout: 10s
       retries: 10
