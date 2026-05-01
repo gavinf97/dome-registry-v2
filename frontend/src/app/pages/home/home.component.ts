@@ -8,6 +8,7 @@ interface HomeStats {
   total: number;
   public: number;
   avgScore: number;
+  byStatus?: Record<string, number>;
 }
 
 @Component({
@@ -44,24 +45,22 @@ interface HomeStats {
       <div class="container">
         <div class="row text-center g-0">
           <div class="col-4" style="border-right:1px solid rgba(255,255,255,.2)">
-            <div class="fs-2 fw-bold text-secondary">{{ stats?.public ?? '–' }}</div>
+            <div class="fs-2 fw-bold text-white">{{ stats?.public ?? '–' }}</div>
             <div class="small text-uppercase stat-label" style="opacity:.7">Public Entries</div>
           </div>
           <div class="col-4" style="border-right:1px solid rgba(255,255,255,.2)">
-            <div class="fs-2 fw-bold text-secondary">
-              {{ stats ? (stats.avgScore | number:'1.0-1') : '–' }}
+            <div class="fs-2 fw-bold text-white">
+              {{ stats ? (stats.total - stats.public) : '–' }}
             </div>
-            <div class="small text-uppercase stat-label" style="opacity:.7">Avg. DOME Score</div>
+            <div class="small text-uppercase stat-label" style="opacity:.7">Private Entries</div>
           </div>
           <div class="col-4">
-            <div class="fs-2 fw-bold text-secondary">4</div>
-            <div class="small text-uppercase stat-label" style="opacity:.7">DOME Pillars</div>
+            <div class="fs-2 fw-bold text-white">{{ userCount ?? '–' }}</div>
+            <div class="small text-uppercase stat-label" style="opacity:.7">Users</div>
           </div>
         </div>
       </div>
     </section>
-    <!-- Stats → entries divider -->
-    <div class="section-sep"></div>
 
     <!-- ── Recently Added ─────────────────────────────────────────────── -->
     <section class="py-5 bg-light">
@@ -130,85 +129,6 @@ interface HomeStats {
       </div>
     </section>
 
-    <!-- ── DOME 4 Pillars ─────────────────────────────────────────────── -->
-    <section class="py-5 pillars-section">
-      <div class="container">
-        <h2 class="h4 fw-bold text-center mb-1">The DOME Framework</h2>
-        <p class="text-muted text-center mb-5 pillar-subtitle">
-          Four pillars of transparency for machine learning in the life sciences.
-          Every registry entry is scored against these criteria.
-        </p>
-        <div class="row g-4">
-          <div *ngFor="let p of pillars" class="col-sm-6 col-lg-3">
-            <div class="card h-100 border-0 shadow-sm dome-pillar-card">
-              <div class="card-body text-center p-4">
-                <div class="pillar-icon mb-3 mx-auto d-flex align-items-center justify-content-center rounded-circle"
-                  [style.background]="p.bg">
-                  <i [class]="'bi ' + p.icon + ' fs-3'" [style.color]="p.color"></i>
-                </div>
-                <h5 class="fw-bold" [style.color]="p.color">{{ p.label }}</h5>
-                <p class="text-muted small mb-0">{{ p.desc }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Pillars → about divider -->
-    <div class="section-sep"></div>
-    <!-- ── About / What is DOME? ──────────────────────────────────────── -->
-    <section class="py-5 about-tinted" id="about">
-      <div class="container">
-        <div class="row align-items-center g-5">
-          <div class="col-lg-6">
-            <h2 class="h3 fw-bold mb-3">What is the DOME Registry?</h2>
-            <p class="text-muted mb-3">
-              The DOME Registry is a community resource for structured annotations of machine
-              learning papers in biology. It implements the
-              <a href="https://dome-ml.org/guidelines" target="_blank" rel="noopener">
-                DOME Recommendations</a> — a peer-reviewed checklist covering
-              <strong>D</strong>ata, <strong>O</strong>ptimization, <strong>M</strong>odel,
-              and <strong>E</strong>valuation.
-            </p>
-            <p class="text-muted mb-4">
-              Each annotation captures how a published model was trained, evaluated, and released,
-              making it easier to compare methods, reproduce results, and assess compliance with
-              FAIR principles.
-            </p>
-            <div class="d-flex flex-wrap gap-2">
-              <a routerLink="/search" class="btn btn-primary">
-                <i class="bi bi-grid me-1"></i>Browse Entries
-              </a>
-              <a href="https://dome-ml.org/guidelines" target="_blank" rel="noopener"
-                class="btn btn-outline-primary">
-                <i class="bi bi-book me-1"></i>DOME Guidelines
-              </a>
-              <a href="https://doi.org/10.1093/bioinformatics/btab661" target="_blank" rel="noopener"
-                class="btn btn-outline-secondary btn-sm align-self-center">
-                <i class="bi bi-file-text me-1"></i>Key Publication
-              </a>
-            </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="row g-3">
-              <div *ngFor="let f of features" class="col-sm-6">
-                <div class="d-flex gap-3 align-items-start">
-                  <div class="flex-shrink-0 feature-icon-wrap d-flex align-items-center justify-content-center rounded-circle">
-                    <i [class]="'bi ' + f.icon + ' text-primary'"></i>
-                  </div>
-                  <div>
-                    <div class="fw-semibold small">{{ f.label }}</div>
-                    <div class="text-muted feature-desc">{{ f.desc }}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- ── CTA strip ──────────────────────────────────────────────────── -->
     <section class="py-5 bg-primary text-white text-center">
       <div class="container">
@@ -244,23 +164,6 @@ interface HomeStats {
       opacity: .75;
     }
 
-    /* Thin orange section divider between major content blocks */
-    .section-sep {
-      height: 3px;
-      background: linear-gradient(90deg, #F66729 0%, rgba(246,103,41,.25) 100%);
-    }
-
-    /* Pillars section: white with orange top accent */
-    .pillars-section {
-      background: #fff;
-      border-top: 3px solid #F66729;
-    }
-
-    /* About section: subtle primary-tinted background */
-    .about-tinted {
-      background: #eef5fa;
-    }
-
     .stat-label {
       letter-spacing: .04em;
       font-size: .7rem;
@@ -282,78 +185,24 @@ interface HomeStats {
       background: linear-gradient(90deg, #7b2ff7, #2196f3);
       color: #fff;
     }
-
-    .pillar-icon { width: 4rem; height: 4rem; }
-    .pillar-subtitle { max-width: 560px; margin: 0 auto; }
-
-    .dome-pillar-card {
-      transition: box-shadow .2s, transform .15s;
-    }
-    .dome-pillar-card:hover {
-      box-shadow: 0 6px 24px rgba(0, 0, 0, .1);
-      transform: translateY(-3px);
-    }
-
-    .feature-icon-wrap {
-      width: 2.5rem;
-      height: 2.5rem;
-      background: rgba(0, 57, 88, .09);
-      flex-shrink: 0;
-    }
-    .feature-desc { font-size: .78rem; }
   `],
 })
 export class HomeComponent implements OnInit {
   searchCtrl = new FormControl('');
   stats: HomeStats | null = null;
+  userCount: number | null = null;
   recentEntries: RegistryEntry[] = [];
   loadingEntries = true;
-
-  pillars = [
-    {
-      label: 'Data',
-      icon: 'bi-database',
-      color: '#003958',
-      bg: 'rgba(0,57,88,.1)',
-      desc: 'Dataset provenance, splits, redundancy controls, and public availability.',
-    },
-    {
-      label: 'Optimization',
-      icon: 'bi-gear-wide-connected',
-      color: '#0077aa',
-      bg: 'rgba(0,119,170,.1)',
-      desc: 'Algorithm selection, hyperparameter tuning, feature engineering, and regularization.',
-    },
-    {
-      label: 'Model',
-      icon: 'bi-cpu',
-      color: '#F66729',
-      bg: 'rgba(246,103,41,.1)',
-      desc: 'Architecture, interpretability, output type, and software availability.',
-    },
-    {
-      label: 'Evaluation',
-      icon: 'bi-bar-chart-line',
-      color: '#2a9d8f',
-      bg: 'rgba(42,157,143,.1)',
-      desc: 'Validation methodology, performance metrics, comparisons, and confidence intervals.',
-    },
-  ];
-
-  features = [
-    { icon: 'bi-shield-check', label: 'FAIR Compliance', desc: 'Structured metadata aligned with FAIR data principles' },
-    { icon: 'bi-robot', label: 'AI Copilot', desc: 'Auto-fill annotations from a PDF using LLM assistance' },
-    { icon: 'bi-graph-up', label: 'DOME Score', desc: 'Per-entry compliance score against requirement weights' },
-    { icon: 'bi-person-badge', label: 'ORCID Auth', desc: 'Authenticate with your ORCID iD; provenance tracked per edit' },
-    { icon: 'bi-journal-text', label: 'Version History', desc: 'Every edit creates an immutable provenance snapshot' },
-    { icon: 'bi-search', label: 'Full-text Search', desc: 'Search and filter across all public registry entries' },
-  ];
 
   constructor(private http: HttpClient, private router: Router) {}
 
   ngOnInit(): void {
     this.http.get<HomeStats>('/api/registry/stats').subscribe({
       next: s => (this.stats = s),
+      error: () => {},
+    });
+    this.http.get<{ count: number }>('/api/users/count').subscribe({
+      next: r => (this.userCount = r.count),
       error: () => {},
     });
     this.http.get<{ items: RegistryEntry[]; total: number }>('/api/registry?limit=6').subscribe({

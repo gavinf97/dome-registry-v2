@@ -114,3 +114,10 @@ body {
 .score-sidebar { position: sticky; top: 1rem; }
 
 .bg-purple { background-color: #6610f2 !important; }
+
+// ─── Orange section divider (used above footer) ───────────────────────
+.section-sep {
+  height: 3px;
+  background: linear-gradient(90deg, #F66729 0%, rgba(246, 103, 41, 0.25) 100%);
+  flex-shrink: 0;
+}

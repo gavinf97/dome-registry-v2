@@ -332,17 +332,12 @@ export class SearchComponent implements OnInit {
     return val === 'score' ? 'Top score' : val === 'oldest' ? 'Oldest' : '';
   }
 
-  /** Interpolate score from red (0) → orange (50) → teal (100) */
+  /** Traffic-light score bands: red <40, orange 40–74, green ≥75 */
   scoreColor(score: number): string {
-    const s = Math.max(0, Math.min(100, score ?? 0));
-    if (s < 50) {
-      const r = 220, g = Math.round((s / 50) * 120);
-      return `rgb(${r},${g},53)`;
-    } else {
-      const g = 120 + Math.round(((s - 50) / 50) * 86);
-      const b = Math.round(((s - 50) / 50) * 150);
-      return `rgb(0,${g},${b})`;
-    }
+    const s = score ?? 0;
+    if (s >= 75) return '#198754';   // Bootstrap success green
+    if (s >= 40) return '#fd7e14';   // Bootstrap warning orange
+    return '#dc3545';                // Bootstrap danger red
   }
 
   nextPage(): void { this.page++; this.load(); }

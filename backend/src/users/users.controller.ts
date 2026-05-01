@@ -12,6 +12,12 @@ class UpdateProfileDto {
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Get('count')
+  async getCount() {
+    const count = await this.usersService.countAll();
+    return { count };
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async getMe(@Req() req: any) {

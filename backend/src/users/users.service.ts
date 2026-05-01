@@ -88,6 +88,10 @@ export class UsersService {
     return this.userModel.find();
   }
 
+  async countAll(): Promise<number> {
+    return this.userModel.countDocuments();
+  }
+
   async findAdmins(): Promise<UserDocument[]> {
     return this.userModel.find({ roles: 'admin' });
   }

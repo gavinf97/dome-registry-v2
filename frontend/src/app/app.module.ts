@@ -22,6 +22,7 @@ import { StatsComponent } from './pages/stats/stats.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { JournalQueueComponent } from './pages/journal-queue/journal-queue.component';
 import { AboutComponent } from './pages/about/about.component';
+import { HelpComponent } from './pages/help/help.component';
 import { ApiDocsComponent } from './pages/api-docs/api-docs.component';
 
 @NgModule({
@@ -41,6 +42,7 @@ import { ApiDocsComponent } from './pages/api-docs/api-docs.component';
     ProfileComponent,
     JournalQueueComponent,
     AboutComponent,
+    HelpComponent,
     ApiDocsComponent,
   ],
   imports: [
