@@ -134,7 +134,7 @@ interface SelectedFile {
     <div *ngIf="auth.isLoggedIn() && stage === 'processing'" class="container py-5" style="max-width:760px">
       <h2 class="mb-1">Processing with AI Copilot&hellip;</h2>
       <p class="text-muted mb-4 small">
-        The AI is reading your PDF and extracting DOME fields. This takes 30&ndash;120 seconds.
+        The AI is reading your PDF and extracting DOME fields. This can take 3&ndash;5 minutes depending on your hardware.
       </p>
 
       <!-- Animated progress bar -->
@@ -411,57 +411,42 @@ export class UploadComponent implements OnInit, OnDestroy {
     this.log('info', 'Sending ' + mainFile.name + ' (' + this.formatSize(mainFile.size) + ') for AI extraction\u2026');
     if (suppCount > 0) this.log('info', suppCount + ' supplementary PDF(s) noted for context.');
 
-    this.startProgressSimulation();
-
-    this.copilotService.process(mainFile, this.doiCtrl.value || undefined)
+    this.copilotService.processStream(mainFile, this.doiCtrl.value || undefined)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: response => {
-          clearInterval(this.progressTimer);
-          this.progressPct = 100;
-          this.currentStep = 'Complete';
-          const count = Object.keys(response.annotations).length;
-          this.log('ok', 'Extraction complete \u2014 ' + count + ' field(s) returned.');
-          this.annotations = response.annotations;
-          this.processing = false;
-          setTimeout(() => { this.stage = 'review'; }, 500);
+        next: (event: any) => {
+          if (event.type === 'progress') {
+             this.progressPct = event.pct;
+             this.currentStep = event.msg;
+             this.log('ai', event.msg);
+          } else if (event.type === 'info') {
+             this.log('info', event.msg);
+          } else if (event.type === 'done') {
+             this.progressPct = 100;
+             this.currentStep = 'Complete';
+             const count = Object.keys(event.annotations || {}).length;
+             this.log('ok', 'Extraction complete \u2014 ' + count + ' field(s) returned.');
+             this.annotations = event.annotations || {};
+             this.processing = false;
+             setTimeout(() => { this.stage = 'review'; }, 500);
+          } else if (event.type === 'error') {
+             this.log('error', event.msg);
+             this.errorMsg = event.msg;
+             this.processing = false;
+          }
         },
         error: err => {
-          clearInterval(this.progressTimer);
           this.processing = false;
           const msg = err.status === 429
             ? 'Daily Copilot quota reached. Try again tomorrow.'
-            : (err.error?.message ?? 'Copilot processing failed. Please try again or fill in manually.');
+            : (err.message ?? 'Copilot processing failed. Please try again or fill in manually.');
           this.log('error', msg);
           this.errorMsg = msg;
         },
       });
   }
 
-  private startProgressSimulation(): void {
-    const steps: Array<{ pct: number; msg: string; type: ProgressLine['type'] }> = [
-      { pct:  8, msg: 'Uploading PDF to Copilot service\u2026', type: 'info' },
-      { pct: 16, msg: 'Extracting text from PDF\u2026', type: 'info' },
-      { pct: 24, msg: 'Identifying paper sections (Abstract, Methods, Results)\u2026', type: 'info' },
-      { pct: 34, msg: 'Analysing Data section \u2014 provenance, splits, redundancy\u2026', type: 'ai' },
-      { pct: 46, msg: 'Analysing Optimization section \u2014 algorithm, encoding, features\u2026', type: 'ai' },
-      { pct: 58, msg: 'Analysing Model section \u2014 architecture, software, output\u2026', type: 'ai' },
-      { pct: 70, msg: 'Analysing Evaluation section \u2014 metrics, comparisons, confidence\u2026', type: 'ai' },
-      { pct: 80, msg: 'Extracting publication metadata (title, authors, journal, DOI)\u2026', type: 'ai' },
-      { pct: 88, msg: 'Structuring annotations to DOME schema format\u2026', type: 'info' },
-      { pct: 94, msg: 'Validating extracted fields\u2026', type: 'info' },
-      { pct: 97, msg: 'Awaiting final response\u2026', type: 'info' },
-    ];
-    let i = 0;
-    this.progressTimer = setInterval(() => {
-      if (i < steps.length && this.processing) {
-        const s = steps[i++];
-        this.progressPct = s.pct;
-        this.currentStep = s.msg;
-        this.log(s.type, s.msg);
-      }
-    }, 5000);
-  }
+
 
   private log(type: ProgressLine['type'], text: string): void {
     this.progressLog = [...this.progressLog, { type, text, ts: new Date() }];

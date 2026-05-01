@@ -4,6 +4,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
+import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guards';
 import { CopilotService } from './copilot.service';
 import { UsersService } from '../users/users.service';
@@ -33,6 +34,7 @@ export class CopilotController {
   )
   async process(
     @Req() req: any,
+    @Res() res: Response,
     @UploadedFile() file: Express.Multer.File,
   ) {
     if (!file) throw new BadRequestException('No PDF file provided');
@@ -40,25 +42,34 @@ export class CopilotController {
     const orcid: string = req.user.orcid;
 
     // Check daily LLM quota
+    const isDev = process.env.NODE_ENV === 'development';
     const calls = await this.usersService.getDailyLLMCalls(orcid);
-    if (calls >= DAILY_QUOTA) {
+    if (!isDev && calls >= DAILY_QUOTA) {
       throw new HttpException(
         `Daily Copilot quota of ${DAILY_QUOTA} calls reached. Try again tomorrow.`,
         HttpStatus.TOO_MANY_REQUESTS,
       );
     }
 
-    // Forward to copilot microservice and get annotations
-    const annotations = await this.copilotService.process({
+    let parsedSections: string[] | undefined;
+    if (typeof req.body?.sections === 'string') {
+      parsedSections = req.body.sections.split(',').map((s: string) => s.trim());
+    } else if (Array.isArray(req.body?.sections)) {
+      parsedSections = req.body.sections;
+    }
+
+    // Forward to copilot microservice and get stream
+    const stream = await this.copilotService.process({
       pdfBuffer: file.buffer,
       doi: req.body?.doi,
-      sections: req.body?.sections,
+      sections: parsedSections,
     });
 
     // Increment quota only on success
     await this.usersService.incrementLLMCalls(orcid);
 
     // PDF buffer is now eligible for GC — no reference kept
-    return { annotations };
+    res.setHeader('Content-Type', 'application/x-ndjson');
+    stream.pipe(res);
   }
 }

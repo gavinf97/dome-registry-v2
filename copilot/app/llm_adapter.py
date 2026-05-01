@@ -29,7 +29,7 @@ def get_llm() -> LLMBackend:
 
     if mode == "local":
         base = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434").rstrip("/")
-        model = os.getenv("OLLAMA_MODEL", "gemma3:4b")
+        model = os.getenv("OLLAMA_MODEL", "gemma3:1b")
         client = AsyncOpenAI(
             base_url=f"{base}/v1",
             api_key="ollama",          # Ollama ignores the key value

@@ -17,45 +17,33 @@ services:
       - "3000:3000"
     command: ["npm", "run", "start:dev"]
 
-  # Override copilot for hot-reload in dev
+  # Override copilot for hot-reload in dev — reaches host Ollama via host.docker.internal
   copilot:
     build:
       context: ./copilot
       dockerfile: Dockerfile.dev
     environment:
       LLM_MODE: local
-      OLLAMA_BASE_URL: http://ollama:11434
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      OLLAMA_MODEL: gemma3:1b
       LLM_TIMEOUT_MS: 180000    # 3 min per individual LLM call
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./copilot/app:/app/app:ro
       - ./copilot/dome_copilot:/app/dome_copilot:ro
     networks:
       - copilot-net
+      - ollama-host-net    # non-internal network so copilot can reach host Ollama
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
   # Disable nginx in dev — frontend is served directly on :4200, backend on :3000
   nginx:
     profiles: ["prod"]
 
-  # Local LLM — Gemma 4 via Ollama
+  # Disable containerized Ollama in dev — use host Ollama instead
   ollama:
-    image: ollama/ollama:latest
-    restart: unless-stopped
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
-    volumes:
-      - ollama-data:/root/.ollama
-    networks:
-      - copilot-net
-    # Pull the model on startup; || true means container keeps running even if pull fails
-    entrypoint: ["/bin/sh", "-c", "ollama serve & sleep 10 && ollama pull ${OLLAMA_MODEL:-gemma3:4b} || echo '⚠ Model pull failed — check internet/DNS, Copilot will not work until model is available' && wait"]
-    healthcheck:
-      test: ["CMD", "ollama", "list"]
-      interval: 30s
-      timeout: 10s
-      retries: 10
-      start_period: 120s
+    profiles: ["prod"]
 
   # MongoDB admin UI — dev only
   mongo-express:
@@ -88,5 +76,7 @@ services:
     networks:
       - public-net
 
-volumes:
-  ollama-data:
+# Dev-only network: NOT internal, allows copilot to reach host Ollama
+networks:
+  ollama-host-net:
+    driver: bridge

@@ -10,7 +10,7 @@ export class CopilotService {
     pdfBuffer: Buffer;
     doi?: string;
     sections?: string[];
-  }): Promise<Record<string, string>> {
+  }): Promise<any> {
     const { pdfBuffer, doi, sections } = params;
 
     const payload = {
@@ -23,8 +23,9 @@ export class CopilotService {
       const response = await axios.post(`${COPILOT_URL}/process`, payload, {
         timeout: COPILOT_TIMEOUT,
         headers: { 'Content-Type': 'application/json' },
+        responseType: 'stream',
       });
-      return response.data.annotations ?? {};
+      return response.data;
     } catch (err: any) {
       const msg = err?.response?.data?.detail ?? err.message ?? 'Copilot service error';
       throw new ServiceUnavailableException(`DOME Copilot failed: ${msg}`);

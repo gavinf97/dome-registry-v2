@@ -9,7 +9,9 @@ import base64
 import logging
 from contextlib import asynccontextmanager
 
+import json
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from .llm_adapter import get_llm
@@ -44,8 +46,8 @@ class ProcessResponse(BaseModel):
     confidence: dict | None = None       # optional per-field confidence scores
 
 
-@app.post("/process", response_model=ProcessResponse)
-async def process(req: ProcessRequest) -> ProcessResponse:
+@app.post("/process")
+async def process(req: ProcessRequest):
     try:
         pdf_bytes = base64.b64decode(req.pdf_b64)
     except Exception:
@@ -55,13 +57,21 @@ async def process(req: ProcessRequest) -> ProcessResponse:
         raise HTTPException(status_code=413, detail="PDF exceeds 20 MB limit")
 
     llm = get_llm()
-    result = await run_inference(
-        pdf_bytes=pdf_bytes,
-        llm=llm,
-        doi=req.doi,
-        sections=req.sections,
-    )
-    return ProcessResponse(annotations=result.get("annotations", {}), confidence=result.get("confidence"))
+    
+    async def event_generator():
+        try:
+            async for event in run_inference(
+                pdf_bytes=pdf_bytes,
+                llm=llm,
+                doi=req.doi,
+                sections=req.sections,
+            ):
+                yield json.dumps(event) + "\n"
+        except Exception as e:
+            logger.error("Inference error: %s", e)
+            yield json.dumps({"type": "error", "msg": str(e)}) + "\n"
+
+    return StreamingResponse(event_generator(), media_type="application/x-ndjson")
 
 
 @app.get("/health")

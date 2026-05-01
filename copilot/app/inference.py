@@ -23,10 +23,9 @@ import asyncio
 import json
 import logging
 import re
-import tempfile
 from functools import partial
 from pathlib import Path
-from typing import Any
+from typing import Any, AsyncGenerator
 
 import yaml
 
@@ -125,19 +124,25 @@ _SUBSECTION_KEYWORDS: dict[str, list[str]] = {
     ],
 }
 
+# ==============================================================================
+# 🎯 SYSTEM PROMPT TWEAKING SPACE
+# ==============================================================================
+# You can tweak and refine the LLM prompt instructions here to improve the
+# extraction accuracy, enforce specific JSON schema compliance (like booleans),
+# or change the model's tone.
 SYSTEM_PROMPT = (
     "You are an expert at extracting structured metadata from machine learning papers. "
     "Extract the requested fields from the paper text provided. "
-    "Output ONLY a JSON object \u2014 no markdown, no prose, no explanation, just valid JSON. "
+    "Output ONLY a JSON object — no markdown, no prose, no explanation, just valid JSON. "
     "Important rules: "
-    "(1) Omit any field where there is no clear evidence in the text \u2014 never invent values. "
-    "(2) Boolean fields: use JSON true or false (not strings). "
+    "(1) Omit any field where there is no clear evidence in the text — never invent values. "
+    "(2) Boolean fields: MUST be output as raw JSON booleans (true or false), NOT strings (\"true\" or \"false\"). "
     "(3) Array fields: always return a JSON array even for a single value. "
-    "(4) Enum fields: use ONLY the exact option strings listed \u2014 never paraphrase. "
+    "(4) Enum fields: use ONLY the exact option strings listed — never paraphrase. "
     "(5) String fields: use a concise factual string extracted from the paper. "
     "(6) Output nothing except the JSON object."
 )
-
+# ==============================================================================
 
 def _load_questionnaire() -> dict:
     with open(_QUESTIONNAIRE_PATH, "r", encoding="utf-8") as fh:
@@ -145,15 +150,81 @@ def _load_questionnaire() -> dict:
 
 
 def _strip_json(raw: str) -> str:
-    """Extract a JSON object from raw LLM output, removing markdown fences."""
+    """Extract a JSON object from raw LLM output, removing markdown fences.
+    Also attempts to repair truncated JSON (common with small local models)."""
+    # Remove markdown code fences
     m = re.search(r"```(?:json)?\s*([\s\S]+?)\s*```", raw)
     if m:
-        return m.group(1).strip()
-    start = raw.find("{")
-    end = raw.rfind("}")
-    if start != -1 and end != -1:
-        return raw[start:end + 1]
-    return raw.strip()
+        candidate = m.group(1).strip()
+    else:
+        start = raw.find("{")
+        if start == -1:
+            return raw.strip()
+        candidate = raw[start:]
+
+    # Try parsing as-is first
+    try:
+        json.loads(candidate)
+        return candidate
+    except json.JSONDecodeError:
+        pass
+
+    # Attempt to repair truncated JSON
+    return _repair_json(candidate)
+
+
+def _repair_json(s: str) -> str:
+    """Best-effort repair of truncated JSON from LLM output.
+    Closes unclosed strings, arrays, and objects."""
+    # Remove trailing comma if present
+    s = s.rstrip()
+    if s.endswith(","):
+        s = s[:-1]
+
+    # Track what's open
+    in_string = False
+    escape_next = False
+    stack: list[str] = []  # tracks '{' and '['
+
+    for ch in s:
+        if escape_next:
+            escape_next = False
+            continue
+        if ch == '\\' and in_string:
+            escape_next = True
+            continue
+        if ch == '"':
+            in_string = not in_string
+            continue
+        if in_string:
+            continue
+        if ch == '{':
+            stack.append('{')
+        elif ch == '[':
+            stack.append('[')
+        elif ch == '}' and stack and stack[-1] == '{':
+            stack.pop()
+        elif ch == ']' and stack and stack[-1] == '[':
+            stack.pop()
+
+    # If we're inside a string, close it
+    if in_string:
+        s += '"'
+
+    # Remove any trailing partial key-value (e.g., truncated mid-value)
+    # Try to find the last complete key-value pair
+    s = s.rstrip()
+    if s.endswith(","):
+        s = s[:-1]
+
+    # Close any open brackets/braces
+    for bracket in reversed(stack):
+        if bracket == '{':
+            s += '}'
+        elif bracket == '[':
+            s += ']'
+
+    return s
 
 
 def _relevant_text(full_text: str, section_path: str, max_chars: int = 2500) -> str:
@@ -224,6 +295,12 @@ def _build_prompt(
         field_lines.append(f'  "{field}": {desc}{suffix}')
 
     fields_block = "\n".join(field_lines)
+    
+    # ==============================================================================
+    # 🎯 SECTION PROMPT TWEAKING SPACE
+    # ==============================================================================
+    # This is the prompt sent for each individual subsection of the paper.
+    # You can tweak how the fields block is requested or the final constraints.
     return (
         f"Paper text:\n---\n{text}\n---\n\n"
         f"From this machine learning paper, extract these fields.\n"
@@ -231,6 +308,7 @@ def _build_prompt(
         f"{fields_block}\n\n"
         'Return only the JSON object, nothing else:'
     )
+    # ==============================================================================
 
 
 def _coerce(value: Any, expected_type: str) -> Any:
@@ -261,15 +339,17 @@ def _parse_response(
     doi: str | None,
 ) -> dict:
     """Parse LLM JSON output → flat slash-keyed dict."""
+    stripped = _strip_json(raw)
     try:
-        data = json.loads(_strip_json(raw))
+        data = json.loads(stripped)
     except json.JSONDecodeError as exc:
         logger.warning(
-            "JSON parse error for %s: %s | raw: %.300s", section_path, exc, raw
+            "JSON parse error for %s: %s | stripped: %.500s", section_path, exc, stripped
         )
         return {}
 
     if not isinstance(data, dict):
+        logger.warning("LLM returned non-dict for %s: %s", section_path, type(data).__name__)
         return {}
 
     skip_ids = set() if doi else {"doi", "pmid", "pmcid"}
@@ -284,6 +364,7 @@ def _parse_response(
         coerced = _coerce(value, type_map.get(field, "string"))
         if coerced is not None:
             result[f"{section_path}/{field}"] = coerced
+            logger.info("    ↳ %s/%s = %.120s", section_path, field, str(coerced))
     return result
 
 
@@ -305,10 +386,10 @@ async def _call_llm(
                     {"role": "user", "content": prompt},
                 ],
                 temperature=0.0,
-                max_tokens=400,
+                max_tokens=1024,
             )
             content = resp.choices[0].message.content or ""
-            logger.debug("Raw LLM response for %s: %.400s", section_path, content)
+            logger.info("Raw LLM response for %s (len=%d): %.500s", section_path, len(content), content)
             return content
         except Exception as exc:
             logger.warning(
@@ -326,14 +407,14 @@ async def run_inference(
     llm: Any,
     doi: str | None = None,
     sections: list[str] | None = None,
-) -> dict:
+) -> AsyncGenerator[dict, None]:
     """
     Main entry point called by main.py.
 
     llm is either a LLMBackend (new, preferred) or a legacy llama-index LLM object
     (handled via isinstance guard for backward compatibility).
 
-    Returns {"annotations": {flat_slash_keyed_dict}}.
+    Yields real-time progress events and eventually a "done" event.
     """
     # Resolve client + model from whatever llm object was passed
     from .llm_adapter import LLMBackend  # local import avoids circular deps
@@ -349,23 +430,31 @@ async def run_inference(
         client, model = backend.client, backend.model
 
     # 1. Extract text from PDF ---------------------------------------------------
+    yield {"type": "info", "msg": "Extracting text from PDF\u2026"}
     text = await _extract_text(pdf_bytes)
     if not text.strip():
         logger.warning("docling returned empty text (doi=%s)", doi)
-        return {"annotations": {}}
+        yield {"type": "done", "annotations": {}}
+        return
 
     logger.info("Extracted %d chars from PDF (doi=%s)", len(text), doi)
 
     # 2. Load questionnaire -------------------------------------------------------
+    yield {"type": "info", "msg": "Identifying paper sections\u2026"}
     try:
         questionnaire = _load_questionnaire()
     except Exception as exc:
         logger.error("Failed to load dome_questionnaire.yml: %s", exc)
-        return {"annotations": {}}
+        yield {"type": "done", "annotations": {}}
+        return
 
     # 3. Determine requested top-level sections -----------------------------------
     all_tops = {"publication", "data", "optimization", "model", "evaluation"}
-    requested = set(sections) if sections else all_tops
+    
+    if sections and "all" in sections:
+        requested = all_tops
+    else:
+        requested = set(sections) if sections else all_tops
 
     subsection_list = [
         (sp, sub)
@@ -382,12 +471,17 @@ async def run_inference(
     # and 22 simultaneous threads exhaust the connection pool.
     # Sequential processing with direct openai SDK is reliable.
     annotations: dict = {}
+    
+    total_subsections = len(subsection_list)
 
-    for section_path, subsection in subsection_list:
+    for i, (section_path, subsection) in enumerate(subsection_list):
         text_chunk = _relevant_text(text, section_path)
         prompt = _build_prompt(section_path, subsection, text_chunk, doi)
         if not prompt:
             continue
+
+        pct = 10 + int(85 * (i / max(1, total_subsections)))
+        yield {"type": "progress", "pct": pct, "msg": f"Analysing {section_path.replace('/', ' - ')}\u2026"}
 
         logger.info("  → %s", section_path)
         try:
@@ -398,31 +492,31 @@ async def run_inference(
         except Exception as exc:
             logger.error("    ✗ Failed %s: %s", section_path, exc)
 
+    yield {"type": "info", "msg": "Structuring annotations to DOME schema format\u2026"}
     logger.info("Total annotations extracted: %d", len(annotations))
-    return {"annotations": annotations}
+    yield {"type": "done", "annotations": annotations}
 
 
 # ── Text extraction ────────────────────────────────────────────────────────────
 
 async def _extract_text(pdf_bytes: bytes) -> str:
-    """Write PDF to a temp file, run docling, return plain text."""
+    """Extract text from PDF bytes using PyMuPDF (fitz). No network calls needed."""
     loop = asyncio.get_event_loop()
     return await loop.run_in_executor(None, partial(_extract_text_sync, pdf_bytes))
 
 
 def _extract_text_sync(pdf_bytes: bytes) -> str:
-    from docling.document_converter import DocumentConverter  # lazy import
-
-    with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
-        tmp.write(pdf_bytes)
-        tmp_path = Path(tmp.name)
+    import fitz  # PyMuPDF — lightweight, self-contained, no OCR model downloads
 
     try:
-        converter = DocumentConverter()
-        result = converter.convert(str(tmp_path))
-        return result.document.export_to_text()
+        doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+        pages = []
+        for page in doc:
+            pages.append(page.get_text("text"))
+        doc.close()
+        text = "\n\n".join(pages)
+        logger.info("PyMuPDF extracted %d chars from %d pages", len(text), len(pages))
+        return text
     except Exception as exc:
-        logger.error("docling extraction failed: %s", exc)
+        logger.error("PyMuPDF extraction failed: %s", exc)
         return ""
-    finally:
-        tmp_path.unlink(missing_ok=True)
