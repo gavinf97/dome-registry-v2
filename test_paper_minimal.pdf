@@ -1,0 +1,47 @@
+%PDF-1.4
+1 0 obj
+<</Type/Catalog/Pages 2 0 R>>
+endobj
+2 0 obj
+<</Type/Pages/Kids[3 0 R]/Count 1>>
+endobj
+3 0 obj
+<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]/Contents 4 0 R/Resources<</Font<</F1 5 0 R>>>>>>
+endobj
+4 0 obj
+<</Length 823>>
+stream
+BT
+/F1 10 Tf
+50 740 Td
+14 TL
+(Deep Learning for Protein Secondary Structure Prediction) Tj T*
+() Tj T*
+(Test Author, Sample Lab. Bioinformatics 2024. DOI:10.1093/bioinformatics/test2024) Tj T*
+() Tj T*
+(Abstract: Supervised CNN for binary classification of protein secondary structure.) Tj T*
+(Training: 8500 sequences from RCSB PDB, 80/20 train/test, CD-HIT 30% identity.) Tj T*
+(Data: https://zenodo.org/example CC BY 4.0. Model: 2.1M params, Adam lr=0.0001,) Tj T*
+(L2 + dropout 0.3, early stopping. Config: https://github.com/example/deepss MIT.) Tj T*
+(Baseline: NetSurf-2 and PSIPRED on same test set. AUC-ROC 0.924, MCC 0.83,) Tj T*
+(95% CI bootstrap n=1000 p<0.05. Training 4h NVIDIA A100. Inference 12ms/seq.) Tj T*
+(Raw files: https://zenodo.org/record/99999 MIT. Code: https://github.com/example/deepss) Tj T*
+ET
+endstream
+endobj
+5 0 obj
+<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000054 00000 n 
+0000000105 00000 n 
+0000000217 00000 n 
+0000001089 00000 n 
+trailer
+<</Size 6/Root 1 0 R>>
+startxref
+1152
+%%EOF
