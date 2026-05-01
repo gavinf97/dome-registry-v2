@@ -8,6 +8,7 @@ import { ScoringService } from '../../services/scoring.service';
 import { RegistryService } from '../../services/registry.service';
 import { RegistryEntry } from '../../models/registry.models';
 import { AuthService } from '../../auth/auth.service';
+import { CopilotStateService } from '../../services/copilot-state.service';
 
 function buildFormGroupFromSchema(sections: SectionDef[], fb: FormBuilder): FormGroup {
   const top: Record<string, any> = {};
@@ -181,17 +182,18 @@ export class RegistryEditorComponent implements OnInit, OnDestroy {
     private scoringService: ScoringService,
     private registryService: RegistryService,
     public auth: AuthService,
+    private copilotStateService: CopilotStateService,
   ) {}
 
   ngOnInit(): void {
     this.uuid = this.route.snapshot.paramMap.get('uuid');
     if (this.uuid === 'new') this.uuid = null;
 
-    // Check for copilot annotations passed via navigation state
+    // Check for copilot annotations — first from navigation state, then from session storage
     const navState = this.router.getCurrentNavigation()?.extras?.state
       ?? (window.history.state as any);
     const pendingAnnotations: Record<string, unknown> | null =
-      navState?.copilotAnnotations ?? null;
+      navState?.copilotAnnotations ?? this.copilotStateService.load()?.annotations ?? null;
 
     combineLatest([
       this.schemaService.loadSchema(),
@@ -208,12 +210,14 @@ export class RegistryEditorComponent implements OnInit, OnDestroy {
           // Apply copilot annotations on top of the empty draft
           if (pendingAnnotations) {
             this.applyCopilotAnnotations(pendingAnnotations);
+            this.copilotStateService.clear();
           }
           this.loading = false;
         });
       } else {
         if (pendingAnnotations) {
           this.applyCopilotAnnotations(pendingAnnotations);
+          this.copilotStateService.clear();
         }
         this.loading = false;
       }

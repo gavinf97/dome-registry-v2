@@ -9,6 +9,10 @@ const API = '/api';
 export class CopilotService {
   constructor(private http: HttpClient) {}
 
+  getQuota(): Observable<{ used: number; max: number; isUnlimited: boolean }> {
+    return this.http.get<{ used: number; max: number; isUnlimited: boolean }>(`${API}/copilot/quota`);
+  }
+
   processStream(pdfFile: File, doi?: string, sections?: string[]): Observable<any> {
     return new Observable(observer => {
       const formData = new FormData();

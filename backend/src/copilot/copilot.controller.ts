@@ -1,5 +1,5 @@
 import {
-  Controller, Post, Req, Res, UseGuards,
+  Controller, Get, Post, Req, Res, UseGuards,
   UseInterceptors, UploadedFile, BadRequestException, HttpException, HttpStatus,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -17,6 +17,15 @@ export class CopilotController {
     private readonly copilotService: CopilotService,
     private readonly usersService: UsersService,
   ) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Get('quota')
+  async getQuota(@Req() req: any): Promise<{ used: number; max: number; isUnlimited: boolean }> {
+    const orcid: string = req.user.orcid;
+    const isDev = process.env.NODE_ENV === 'development';
+    const used = await this.usersService.getDailyLLMCalls(orcid);
+    return { used, max: DAILY_QUOTA, isUnlimited: isDev };
+  }
 
   @UseGuards(JwtAuthGuard)
   @Post('process')
