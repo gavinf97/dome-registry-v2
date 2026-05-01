@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/co
 import { Router } from '@angular/router';
 import { FormControl } from '@angular/forms';
 import { CopilotService } from '../../services/api.service';
+import { CopilotStateService, CopilotResult } from '../../services/copilot-state.service';
 import { RegistryService } from '../../services/registry.service';
 import { AuthService } from '../../auth/auth.service';
 import { SchemaService, SectionDef } from '../../services/schema.service';
@@ -39,8 +40,8 @@ interface SelectedFile {
           <a routerLink="/about" class="small text-decoration-none me-3">
             <i class="bi bi-info-circle me-1"></i>How does AI Import work?
           </a>
-          <a routerLink="/api-docs" class="small text-decoration-none">
-            <i class="bi bi-code-slash me-1"></i>Bulk / API docs
+          <a routerLink="/help/docs" class="small text-decoration-none">
+            <i class="bi bi-code-square me-1"></i>API Documentation
           </a>
         </div>
       </div>
@@ -54,8 +55,8 @@ interface SelectedFile {
           <a routerLink="/about" class="btn btn-sm btn-outline-secondary">
             <i class="bi bi-question-circle me-1"></i>How it works
           </a>
-          <a routerLink="/api-docs" class="btn btn-sm btn-outline-secondary">
-            <i class="bi bi-code-slash me-1"></i>Bulk / API
+          <a routerLink="/help/docs" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-code-square me-1"></i>API Documentation
           </a>
         </div>
       </div>
@@ -118,15 +119,47 @@ interface SelectedFile {
         <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1"></i>{{ errorMsg }}
       </div>
 
+      <!-- Quota badge -->
+      <div class="mb-3">
+        <span *ngIf="quotaLoading" class="badge bg-secondary py-2 px-3">
+          <span class="spinner-border spinner-border-sm me-1"></span>Loading quota&#x2026;
+        </span>
+        <span *ngIf="!quotaLoading && quota" class="badge py-2 px-3"
+          [class.bg-success]="quota.isUnlimited"
+          [class.bg-primary]="!quota.isUnlimited && quota.used < quota.max"
+          [class.bg-danger]="!quota.isUnlimited && quota.used >= quota.max">
+          <i class="bi bi-cpu me-1"></i>
+          <ng-container *ngIf="quota.isUnlimited">Unlimited (dev mode)</ng-container>
+          <ng-container *ngIf="!quota.isUnlimited">{{ quota.used }} / {{ quota.max }} credits used today</ng-container>
+        </span>
+      </div>
+
       <div class="d-flex gap-2 align-items-center flex-wrap">
-        <button class="btn btn-primary" [disabled]="selectedFiles.length === 0" (click)="process()">
+        <button class="btn btn-primary" [disabled]="selectedFiles.length === 0 || quotaExhausted" (click)="process()">
           <i class="bi bi-robot me-1"></i>
           {{ selectedFiles.length > 1 ? 'Process ' + selectedFiles.length + ' PDFs with Copilot' : 'Process with Copilot' }}
         </button>
         <a routerLink="/registry/new" class="btn btn-outline-secondary">
           <i class="bi bi-pencil me-1"></i>Start manually instead
         </a>
-        <span class="text-muted small ms-auto">Uses 1 of your daily Copilot calls</span>
+        <span *ngIf="!quotaExhausted" class="text-muted small ms-auto">Uses 1 of your daily Copilot calls</span>
+        <span *ngIf="quotaExhausted" class="text-danger small ms-auto"><i class="bi bi-exclamation-triangle me-1"></i>Daily quota reached</span>
+      </div>
+
+      <!-- Dev-only: instant dummy entry for debugging without waiting for LLM -->
+      <div *ngIf="quota?.isUnlimited" class="mt-3 p-3 border border-warning rounded bg-warning bg-opacity-10">
+        <small class="fw-semibold d-block mb-2" style="color:#856404">
+          <i class="bi bi-wrench me-1"></i>Dev tools &#x2014; not shown in production
+        </small>
+        <button class="btn btn-sm btn-warning" [disabled]="devLoading" (click)="useDummyData()">
+          <span *ngIf="devLoading" class="spinner-border spinner-border-sm me-1"></span>
+          <i *ngIf="!devLoading" class="bi bi-lightning me-1"></i>
+          Fill with test data (skip LLM)
+        </button>
+        <span *ngIf="devCreatedUuid" class="ms-3 small text-success">
+          <i class="bi bi-check-circle-fill me-1"></i>
+          Draft created &#x2014; <a [routerLink]="['/registry', devCreatedUuid, 'edit']" class="fw-semibold">Open in Editor</a>
+        </span>
       </div>
     </div>
 
@@ -341,6 +374,14 @@ export class UploadComponent implements OnInit, OnDestroy {
   createdUuid = '';
   submitting = false;
 
+  // Quota
+  quota: { used: number; max: number; isUnlimited: boolean } | null = null;
+  quotaLoading = true;
+
+  // Dev dummy
+  devLoading = false;
+  devCreatedUuid = '';
+
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('logBox') logBox!: ElementRef<HTMLDivElement>;
 
@@ -348,6 +389,7 @@ export class UploadComponent implements OnInit, OnDestroy {
 
   constructor(
     private copilotService: CopilotService,
+    private copilotStateService: CopilotStateService,
     private registryService: RegistryService,
     private schemaService: SchemaService,
     private router: Router,
@@ -358,6 +400,103 @@ export class UploadComponent implements OnInit, OnDestroy {
     this.schemaService.loadSchema().pipe(takeUntil(this.destroy$)).subscribe(schema => {
       this.reviewSections = this.schemaService.parseSchema(schema);
     });
+    if (this.auth.isLoggedIn()) {
+      this.copilotService.getQuota().subscribe({
+        next: q => { this.quota = q; this.quotaLoading = false; },
+        error: () => { this.quotaLoading = false; },
+      });
+    }
+  }
+
+  get quotaExhausted(): boolean {
+    return !!this.quota && !this.quota.isUnlimited && this.quota.used >= this.quota.max;
+  }
+
+
+  /** Dev-only: create a pre-filled AI draft instantly without running the LLM.
+   *  Only available when quota.isUnlimited (dev/local instance). */
+  useDummyData(): void {
+    this.devLoading = true;
+    this.devCreatedUuid = '';
+    const dummyAnnotations: Record<string, unknown> = {
+      'publication/title': 'Deep Learning for Protein Secondary Structure Prediction',
+      'publication/authors': ['Smith J', 'Doe A', 'Chen L'],
+      'publication/journal': 'Bioinformatics',
+      'publication/year': 2024,
+      'publication/doi': '10.1093/bioinformatics/test2024',
+      'publication/tags': ['deep learning', 'protein structure', 'CNN'],
+      'data/provenance/datasetSource': 'RCSB PDB',
+      'data/provenance/pointsPerClass': 8500,
+      'data/provenance/previouslyUsed': true,
+      'data/dataSplits/trainTestPoints': '80/20 split',
+      'data/dataSplits/validationUsed': true,
+      'data/redundancy/splitMethod': 'CD-HIT 30% identity cutoff',
+      'data/redundancy/setsIndependent': true,
+      'data/availability/isDataPublic': true,
+      'data/availability/dataUrl': 'https://zenodo.org/record/example',
+      'data/availability/dataLicence': 'CC BY 4.0',
+      'optimization/algorithm/algorithmClass': 'Deep Learning',
+      'optimization/algorithm/isAlgorithmNew': false,
+      'optimization/encoding/dataEncodingMethod': 'One-hot encoding',
+      'optimization/parameters/numberOfParameters': 2100000,
+      'optimization/parameters/parameterSelectionMethod': 'Adam lr=0.0001',
+      'optimization/fitting/overfittingPrevention': 'L2 + dropout 0.3',
+      'optimization/fitting/underfittingPrevention': 'Early stopping',
+      'optimization/regularization/regularizationUsed': true,
+      'optimization/configAvailability/configReported': true,
+      'optimization/configAvailability/configUrl': 'https://github.com/example/deepss',
+      'optimization/configAvailability/configLicence': 'MIT',
+      'model/interpretability/interpretabilityType': 'Post-hoc',
+      'model/output/outputType': 'Classification',
+      'model/output/targetVariable': 'Secondary structure class (helix/sheet/coil)',
+      'model/execution/trainingTime': '4 hours on NVIDIA A100',
+      'model/execution/inferenceTime': '12 ms per sequence',
+      'model/execution/hardwareUsed': 'NVIDIA A100 80 GB',
+      'model/softwareAvailability/sourceCodeReleased': true,
+      'model/softwareAvailability/softwareUrl': 'https://github.com/example/deepss',
+      'model/softwareAvailability/softwareLicence': 'MIT',
+      'evaluation/method/evaluationMethod': 'Independent test set',
+      'evaluation/performanceMeasures/performanceMetrics': ['AUC-ROC 0.924', 'MCC 0.83', 'F1 0.84'],
+      'evaluation/performanceMeasures/metricsRepresentative': true,
+      'evaluation/comparison/comparisonPublicMethods': true,
+      'evaluation/comparison/comparisonBaselines': true,
+      'evaluation/comparison/comparedToolsAndBaselines': ['NetSurf-2', 'PSIPRED'],
+      'evaluation/confidence/hasConfidenceIntervals': true,
+      'evaluation/confidence/statisticallySignificant': true,
+      'evaluation/confidence/confidenceNumericalValues': '95 pct CI bootstrap n=1000 p<0.05',
+      'evaluation/evaluationAvailability/rawFilesAvailable': true,
+      'evaluation/evaluationAvailability/rawFilesUrl': 'https://zenodo.org/record/99999',
+      'evaluation/evaluationAvailability/rawFilesLicence': 'MIT',
+    };
+    const nested = this.flatToNested(dummyAnnotations);
+    this.registryService.create({ isAiGenerated: true, ...nested }).subscribe({
+      next: entry => {
+        const result: CopilotResult = {
+          annotations: dummyAnnotations,
+          filename: 'test-paper-dev.pdf',
+          processedAt: Date.now(),
+          draftUuid: entry.uuid,
+        };
+        this.copilotStateService.save(result);
+        this.devCreatedUuid = entry.uuid;
+        this.devLoading = false;
+      },
+      error: () => { this.devLoading = false; this.errorMsg = 'Failed to create test entry.'; },
+    });
+  }
+
+  private flatToNested(flat: Record<string, unknown>): Record<string, unknown> {
+    const root: Record<string, unknown> = {};
+    for (const [rawKey, value] of Object.entries(flat)) {
+      const parts = rawKey.replace(/\./g, '/').split('/');
+      let node: Record<string, unknown> = root;
+      for (let i = 0; i < parts.length - 1; i++) {
+        if (!node[parts[i]] || typeof node[parts[i]] !== 'object') node[parts[i]] = {};
+        node = node[parts[i]] as Record<string, unknown>;
+      }
+      node[parts[parts.length - 1]] = value;
+    }
+    return root;
   }
 
   ngOnDestroy(): void {
