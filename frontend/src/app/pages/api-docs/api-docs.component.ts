@@ -133,6 +133,11 @@ import { Component } from '@angular/core';
   -H "Authorization: Bearer &lt;token&gt;" \\
   -H "Content-Type: application/json" \\
   -d '&#123;&#125;'</pre>
+                </div>
+              </div>
+            </div>
+
+            <!-- PATCH update -->
             <div class="accordion-item">
               <h2 class="accordion-header">
                 <button class="accordion-button collapsed" type="button"
@@ -222,24 +227,6 @@ import { Component } from '@angular/core';
             </div>
 
           </div><!-- /accordion -->
-        </div>
-      </div>
-
-      <!-- ── Bulk Submission ────────────────────────────────────── -->
-      <div class="card dome-section-card mb-4">
-        <div class="card-header py-2"><h5 class="mb-0">Bulk Submission</h5></div>
-        <div class="card-body">
-          <p>
-            There is no dedicated batch endpoint — use the standard three-step per-entry flow in a loop.
-            Respect rate limits (429 responses) by adding a short delay between entries.
-          </p>
-          <p class="fw-semibold mb-1">Three-step pattern per entry</p>
-          <pre class="bg-dark text-light rounded p-3 mb-3" style="font-size:.78rem" [textContent]="bulkExample"></pre>
-          <p class="text-muted small mb-0">
-            <i class="bi bi-info-circle me-1"></i>
-            Copilot AI extraction counts against your per-user daily quota. For bulk AI import,
-            contact the registry administrators to discuss increased limits.
-          </p>
         </div>
       </div>
 
@@ -350,30 +337,4 @@ export class ApiDocsComponent {
     ...
   }
 }`;
-
-  readonly bulkExample = `TOKEN="your-jwt-token"
-BASE="https://registry.dome-ml.org/api"
-
-for ENTRY in entries/*.json; do
-  # Step 1: Create draft
-  UUID=$(curl -s -X POST "$BASE/registry" \\
-    -H "Authorization: Bearer $TOKEN" \\
-    -H "Content-Type: application/json" \\
-    -d '{}' | jq -r .uuid)
-
-  # Step 2: Patch with annotation data
-  DATA=$(cat "$ENTRY")
-  curl -s -X PATCH "$BASE/registry/$UUID" \\
-    -H "Authorization: Bearer $TOKEN" \\
-    -H "Content-Type: application/json" \\
-    -d "$DATA"
-
-  # Step 3: Submit for review
-  curl -s -X POST "$BASE/registry/$UUID/submit" \\
-    -H "Authorization: Bearer $TOKEN" \\
-    -H "Content-Type: application/json" \\
-    -d '{}'
-
-  sleep 0.5  # respect rate limits
-done`;
 }

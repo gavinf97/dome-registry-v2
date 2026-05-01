@@ -19,6 +19,7 @@ import { AboutGovernanceComponent } from './pages/about/about-governance.compone
 import { AboutPoliciesComponent } from './pages/about/about-policies.component';
 import { AboutNewsComponent } from './pages/about/about-news.component';
 import { HelpComponent } from './pages/help/help.component';
+import { HelpGuideComponent } from './pages/help/help-guide.component';
 import { ApiDocsComponent } from './pages/api-docs/api-docs.component';
 
 const routes: Routes = [
@@ -36,8 +37,12 @@ const routes: Routes = [
     { path: 'policies', component: AboutPoliciesComponent },
     { path: 'news', component: AboutNewsComponent },
   ]},
-  { path: 'help', component: HelpComponent },
-  { path: 'api-docs', component: ApiDocsComponent },
+  { path: 'help', component: HelpComponent, children: [
+    { path: '', redirectTo: 'guide', pathMatch: 'full' },
+    { path: 'guide', component: HelpGuideComponent },
+    { path: 'docs', component: ApiDocsComponent },
+  ]},
+  { path: 'api-docs', redirectTo: '/help/docs', pathMatch: 'full' },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: 'journal-queue', component: JournalQueueComponent, canActivate: [AuthGuard] },
   { path: 'upload', component: UploadComponent },

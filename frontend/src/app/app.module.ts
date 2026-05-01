@@ -28,6 +28,7 @@ import { AboutGovernanceComponent } from './pages/about/about-governance.compone
 import { AboutPoliciesComponent } from './pages/about/about-policies.component';
 import { AboutNewsComponent } from './pages/about/about-news.component';
 import { HelpComponent } from './pages/help/help.component';
+import { HelpGuideComponent } from './pages/help/help-guide.component';
 import { ApiDocsComponent } from './pages/api-docs/api-docs.component';
 
 @NgModule({
@@ -53,6 +54,7 @@ import { ApiDocsComponent } from './pages/api-docs/api-docs.component';
     AboutPoliciesComponent,
     AboutNewsComponent,
     HelpComponent,
+    HelpGuideComponent,
     ApiDocsComponent,
   ],
   imports: [
