@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background: #f5f7fa; }
+    .container { max-width: 600px; margin: 32px auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+    .header { background: #003958; color: #fff; padding: 24px 32px; }
+    .header h1 { margin: 0; font-size: 20px; }
+    .header p { margin: 4px 0 0; opacity: .8; font-size: 13px; }
+    .body { padding: 28px 32px; }
+    .field { margin-bottom: 16px; }
+    .field-label { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: #888; margin-bottom: 2px; }
+    .field-value { font-size: 15px; font-weight: 600; color: #003958; }
+    .cta { display: inline-block; margin: 8px 8px 0 0; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px; }
+    .cta-primary { background: #003958; color: #fff; }
+    .cta-secondary { background: #F66729; color: #fff; }
+    .footer { background: #f0f4f8; padding: 16px 32px; font-size: 12px; color: #888; border-top: 1px solid #e2e8f0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>New Entry Submitted</h1>
+      <p>DOME Registry — Moderation Queue</p>
+    </div>
+    <div class="body">
+      <p>A new entry has been submitted and is awaiting your review.</p>
+
+      <div class="field">
+        <div class="field-label">Entry Title</div>
+        <div class="field-value">{{entryTitle}}</div>
+      </div>
+      <div class="field">
+        <div class="field-label">Submitted by</div>
+        <div class="field-value">{{submitterName}}</div>
+      </div>
+      {{#if journalId}}
+      <div class="field">
+        <div class="field-label">Journal ID</div>
+        <div class="field-value">{{journalId}}</div>
+      </div>
+      {{/if}}
+
+      <p>
+        <a class="cta cta-primary" href="{{adminUrl}}">Review in Admin Panel</a>
+        <a class="cta cta-secondary" href="{{entryUrl}}">View Entry</a>
+      </p>
+    </div>
+    <div class="footer">
+      This notification was sent because you have a moderation role in the DOME Registry.
+      &copy; {{currentYear}} DOME Registry — University of Padua, Italy.
+    </div>
+  </div>
+</body>
+</html>

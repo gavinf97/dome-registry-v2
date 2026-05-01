@@ -72,5 +72,42 @@ export class MailService {
       dashboardUrl: `${this.frontendUrl}/admin`,
     });
   }
+
+  async sendAdminNotification(
+    recipients: string[],
+    submitterName: string,
+    entryUuid: string,
+    entryTitle: string,
+    journalId?: string,
+  ): Promise<void> {
+    const context = {
+      submitterName,
+      entryTitle: entryTitle || entryUuid,
+      entryUrl: `${this.frontendUrl}/registry/${entryUuid}`,
+      adminUrl: `${this.frontendUrl}/admin`,
+      journalId: journalId || null,
+    };
+    await Promise.all(
+      recipients
+        .filter(r => !!r)
+        .map(r =>
+          this.send(r, `[DOME Registry] New submission: ${entryTitle || entryUuid}`, 'admin-notification', context),
+        ),
+    );
+  }
+
+  async sendNotificationToSubmitter(
+    email: string,
+    entryUuid: string,
+    entryTitle: string,
+    message: string,
+  ): Promise<void> {
+    if (!email) return;
+    await this.send(email, '[DOME Registry] Message from the registry team', 'notification-to-submitter', {
+      entryTitle: entryTitle || entryUuid,
+      entryUrl: `${this.frontendUrl}/registry/${entryUuid}`,
+      message,
+    });
+  }
 }
 

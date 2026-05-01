@@ -3,6 +3,12 @@
   border-bottom: 3px solid #F66729;
 }
 
+// Orange active links in dark navbar
+.navbar-dark .navbar-nav .nav-link.active {
+  color: #F66729 !important;
+  font-weight: 500;
+}
+
 .footer-link {
   opacity: .85;
   transition: opacity .15s;

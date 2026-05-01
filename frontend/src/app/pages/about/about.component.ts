@@ -36,6 +36,21 @@ import { AuthService } from '../../auth/auth.service';
             </a>
           </li>
           <li class="nav-item">
+            <a class="nav-link about-tab" href="#dome-recommendations">
+              <i class="bi bi-list-check me-1"></i>DOME Checklist
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link about-tab" href="#how-to-submit">
+              <i class="bi bi-upload me-1"></i>How to Submit
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link about-tab" href="#cite">
+              <i class="bi bi-quote me-1"></i>Citing DOME
+            </a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link about-tab" href="#contact">
               <i class="bi bi-envelope me-1"></i>Contact
             </a>
@@ -219,6 +234,216 @@ import { AuthService } from '../../auth/auth.service';
     <!-- Section divider -->
     <div class="section-divider"></div>
 
+    <!-- DOME Recommendations -->
+    <section id="dome-recommendations" class="py-5 bg-light">
+      <div class="container">
+        <div class="section-label text-secondary fw-semibold small text-uppercase mb-2" style="letter-spacing:.08em">
+          The DOME Checklist
+        </div>
+        <h2 class="h3 fw-bold mb-2">DOME Recommendations for ML in Biology</h2>
+        <p class="text-muted mb-4" style="max-width:800px">
+          Machine learning is increasingly used to make predictions in biology and medicine.
+          However, benchmarking and comparative assessment of ML methods is often difficult
+          due to inconsistent reporting of key methodological details. DOME was created to
+          address this challenge.
+        </p>
+        <div class="row g-4 mb-4">
+          <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100 p-3 dome-section-card">
+              <div class="fw-bold mb-2"><i class="bi bi-exclamation-circle text-secondary me-2"></i>The Challenge</div>
+              <p class="text-muted small mb-0">
+                The lack of standardised reporting makes it impossible to objectively assess
+                ML methods and reproduce published results. Benchmarking is hindered by
+                inconsistent reporting of training data, model configuration, and evaluation
+                methodology across publications.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100 p-3 dome-section-card">
+              <div class="fw-bold mb-2"><i class="bi bi-lightbulb text-secondary me-2"></i>The Solution</div>
+              <p class="text-muted small mb-0">
+                DOME provides a minimal set of community-agreed, peer-reviewed recommendations
+                covering the four key aspects of any supervised ML method: Data, Optimization,
+                Model, and Evaluation. Authors are encouraged to report these items with their
+                publications.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100 p-3 dome-section-card">
+              <div class="fw-bold mb-2"><i class="bi bi-check2-all text-secondary me-2"></i>Key Principles</div>
+              <ul class="text-muted small mb-0 ps-3">
+                <li>Clearly document dataset provenance, splits and redundancy control</li>
+                <li>Report the full optimisation procedure and hyperparameter selection</li>
+                <li>Describe model architecture, interpretability, and software availability</li>
+                <li>Use representative performance metrics with confidence intervals</li>
+                <li>Compare against established baselines using the same data</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100 p-3 dome-section-card">
+              <div class="fw-bold mb-2"><i class="bi bi-award text-secondary me-2"></i>The Goal</div>
+              <p class="text-muted small mb-0">
+                DOME strives for FAIR ML — Findable, Accessible, Interoperable, and Reusable
+                machine learning methods. By following DOME, authors make it easier for the
+                community to reproduce, compare, and build upon published methods, ultimately
+                accelerating scientific progress.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <a href="https://dome-ml.org/guidelines" target="_blank" rel="noopener"
+             class="btn btn-primary btn-sm">
+            <i class="bi bi-list-check me-1"></i>Full DOME Guidelines
+          </a>
+          <a href="https://doi.org/10.1038/s41592-021-01205-4" target="_blank" rel="noopener"
+             class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-file-earmark-text me-1"></i>Walsh et al., Nature Methods 2021
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section divider -->
+    <div class="section-divider"></div>
+
+    <!-- How to Submit -->
+    <section id="how-to-submit" class="py-5">
+      <div class="container">
+        <div class="section-label text-secondary fw-semibold small text-uppercase mb-2" style="letter-spacing:.08em">
+          Submitting to the Registry
+        </div>
+        <h2 class="h3 fw-bold mb-2">How to Submit an Entry</h2>
+        <p class="text-muted mb-4" style="max-width:800px">
+          The DOME Registry welcomes annotations for any published supervised machine learning
+          method in biology or medicine. Submissions are community-driven — if you authored
+          or reviewed a paper using ML, you can annotate it.
+        </p>
+
+        <div class="row g-3 mb-4">
+          <div *ngFor="let step of submitSteps; let i = index" class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body p-4">
+                <div class="step-num mb-3">{{ i + 1 }}</div>
+                <h6 class="fw-bold mb-2">{{ step.title }}</h6>
+                <p class="text-muted small mb-0">{{ step.desc }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Copilot callout -->
+        <div class="alert border-0 shadow-sm d-flex gap-3 align-items-start" style="background:linear-gradient(135deg,rgba(123,47,247,.07),rgba(33,150,243,.07));">
+          <div class="ai-icon-sm flex-shrink-0 d-flex align-items-center justify-content-center rounded-circle" style="width:3rem;height:3rem;background:linear-gradient(135deg,#7b2ff7,#2196f3);">
+            <i class="bi bi-robot text-white"></i>
+          </div>
+          <div>
+            <div class="fw-bold mb-1">Speed up annotation with the AI Copilot</div>
+            <p class="text-muted small mb-2">
+              Upload your paper PDF and the AI Copilot will automatically extract structured
+              DOME annotations from the text. Review each suggested value before saving —
+              AI-generated entries are clearly flagged so the community can verify them.
+            </p>
+            <a routerLink="/upload" class="btn btn-sm btn-primary">
+              <i class="bi bi-robot me-1"></i>Try AI Import
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section divider -->
+    <div class="section-divider"></div>
+
+    <!-- Citing DOME -->
+    <section id="cite" class="py-5 bg-light">
+      <div class="container" style="max-width:900px">
+        <div class="section-label text-secondary fw-semibold small text-uppercase mb-2" style="letter-spacing:.08em">
+          Citations
+        </div>
+        <h2 class="h3 fw-bold mb-4">Citing DOME</h2>
+        <p class="text-muted mb-4">
+          If you use the DOME Registry or the DOME recommendations in your work, please cite
+          the appropriate publications below.
+        </p>
+
+        <!-- Citation 1 -->
+        <div class="card border-0 shadow-sm mb-3">
+          <div class="card-body p-4">
+            <div class="d-flex gap-3">
+              <div class="flex-shrink-0 text-secondary text-center" style="width:2.5rem;">
+                <i class="bi bi-file-earmark-text fs-3"></i>
+              </div>
+              <div>
+                <div class="fw-semibold mb-1">DOME Recommendations (original paper)</div>
+                <p class="text-muted small mb-2">
+                  Walsh I, Fishman D, Garcia-Gasulla D, Titma T, Pollastri G; ELIXIR Machine
+                  Learning Focus Group; Harrow J, Psomopoulos FE, Tosatto SCE.
+                  <em>DOME: recommendations for supervised machine learning validation in biology.</em>
+                  <strong>Nature Methods</strong>, 2021; 18(10):1122–1127.
+                </p>
+                <a href="https://doi.org/10.1038/s41592-021-01205-4" target="_blank" rel="noopener"
+                   class="btn btn-outline-secondary btn-sm">
+                  <i class="bi bi-box-arrow-up-right me-1"></i>DOI: 10.1038/s41592-021-01205-4
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Citation 2 -->
+        <div class="card border-0 shadow-sm mb-3">
+          <div class="card-body p-4">
+            <div class="d-flex gap-3">
+              <div class="flex-shrink-0 text-secondary text-center" style="width:2.5rem;">
+                <i class="bi bi-file-earmark-text fs-3"></i>
+              </div>
+              <div>
+                <div class="fw-semibold mb-1">DOME Registry</div>
+                <p class="text-muted small mb-2">
+                  Attafi IM, Minervini G, Farrell G, Longhi S, Tosatto SCE.
+                  <em>DOME Registry: a community resource for structured ML annotations in biology.</em>
+                  <strong>GigaScience</strong>, 2024; 13: giae094.
+                </p>
+                <a href="https://doi.org/10.1093/gigascience/giae094" target="_blank" rel="noopener"
+                   class="btn btn-outline-secondary btn-sm">
+                  <i class="bi bi-box-arrow-up-right me-1"></i>DOI: 10.1093/gigascience/giae094
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cite an entry -->
+        <div class="card border-0 shadow-sm mb-3">
+          <div class="card-body p-4">
+            <div class="d-flex gap-3">
+              <div class="flex-shrink-0 text-secondary text-center" style="width:2.5rem;">
+                <i class="bi bi-bookmark fs-3"></i>
+              </div>
+              <div>
+                <div class="fw-semibold mb-1">Citing a specific registry entry</div>
+                <p class="text-muted small mb-2">
+                  Each entry has a permanent URL. To cite a specific entry, use the entry's
+                  UUID URL together with the registry citation above:
+                </p>
+                <code class="d-block bg-white border rounded p-2 small">
+                  DOME Registry entry: https://registry.dome-ml.org/registry/&lt;uuid&gt;
+                  — Attafi et al., GigaScience 2024 (DOI 10.1093/gigascience/giae094).
+                </code>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section divider -->
+    <div class="section-divider"></div>
+
     <!-- Contact -->
     <section id="contact" class="py-5 bg-light">
       <div class="container" style="max-width:700px">
@@ -318,6 +543,29 @@ export class AboutComponent {
       title: 'Use AI Import',
       desc: 'Upload a PDF and our AI Copilot will auto-populate the DOME form. Review all suggestions before saving.',
       route: '/upload', cta: 'AI Import',
+    },
+  ];
+
+  submitSteps: Array<{ title: string; desc: string }> = [
+    {
+      title: 'Sign in with ORCID',
+      desc: 'Create a free ORCID iD at orcid.org if you do not have one. ORCID is your persistent researcher identifier.',
+    },
+    {
+      title: 'Start a new entry',
+      desc: 'Click Submit in the navbar to open the schema-driven annotation form. Enter the paper DOI to pre-fill publication metadata.',
+    },
+    {
+      title: 'Fill in the DOME fields',
+      desc: 'Complete the four sections — Data, Optimization, Model, Evaluation. Fields marked REQUIREMENT carry the most weight toward the DOME score.',
+    },
+    {
+      title: 'Or use AI Import',
+      desc: 'Upload the paper PDF for AI-assisted pre-filling. The Copilot extracts annotations automatically. Always review and correct before saving.',
+    },
+    {
+      title: 'Submit for review',
+      desc: 'Once satisfied, submit the entry for moderation. It will enter a public peer review queue and be published after approval.',
     },
   ];
 

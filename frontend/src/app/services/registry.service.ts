@@ -18,6 +18,13 @@ export interface SearchParams {
   limit?: number;
 }
 
+export interface AdminQueueFilters {
+  text?: string;
+  status?: string;
+  journal?: string;
+  isAiGenerated?: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class RegistryService {
   constructor(private http: HttpClient) {}
@@ -75,5 +82,18 @@ export class RegistryService {
 
   getJournalQueue(journalId: string): Observable<RegistryEntry[]> {
     return this.http.get<RegistryEntry[]>(`${API}/registry/journals/${journalId}/queue`);
+  }
+
+  getAdminQueue(filters: AdminQueueFilters = {}): Observable<RegistryEntry[]> {
+    let p = new HttpParams();
+    if (filters.text) p = p.set('text', filters.text);
+    if (filters.status) p = p.set('status', filters.status);
+    if (filters.journal) p = p.set('journal', filters.journal);
+    if (filters.isAiGenerated !== undefined) p = p.set('isAiGenerated', String(filters.isAiGenerated));
+    return this.http.get<RegistryEntry[]>(`${API}/registry/admin/queue`, { params: p });
+  }
+
+  sendModerationNotification(uuid: string, message: string): Observable<{ sent: boolean }> {
+    return this.http.post<{ sent: boolean }>(`${API}/registry/admin/${uuid}/notify`, { message });
   }
 }

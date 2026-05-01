@@ -3,7 +3,7 @@
 
   <!-- ── Header ─────────────────────────────────────────────────────── -->
   <header class="d-block flex-grow-0">
-    <nav class="navbar navbar-expand-sm navbar-dark bg-primary navbar-accent">
+      <nav class="navbar navbar-expand-md navbar-dark bg-primary navbar-accent">
       <div class="container-fluid">
 
         <!-- Brand: SVG logo + name -->
@@ -22,7 +22,7 @@
         <!-- Nav links -->
         <div class="navbar-collapse collapse" id="navMain">
           <!-- Left: Browse, Stats, Submit, AI Import, Journal Queue, Admin, then About (rightmost) -->
-          <ul class="navbar-nav ms-0 me-auto">
+          <ul class="navbar-nav mx-auto">
             <li class="nav-item">
               <a class="nav-link" routerLink="/search" [routerLinkActive]="['active']">Browse</a>
             </li>
@@ -46,7 +46,7 @@
                 <i class="bi bi-journal-check me-1"></i>Journal Queue
               </a>
             </li>
-            <li class="nav-item" *ngIf="auth.hasRole('admin')">
+            <li class="nav-item" *ngIf="auth.hasRole('admin') || auth.hasRole('journal_owner')">
               <a class="nav-link" routerLink="/admin" [routerLinkActive]="['active']">Admin</a>
             </li>
             <!-- About: always the rightmost tab in left nav -->
@@ -76,6 +76,11 @@
                     <i class="bi bi-file-earmark-text me-2"></i>Key Publication
                   </a>
                 </li>
+                <li>
+                  <a class="dropdown-item" routerLink="/about" fragment="cite">
+                    <i class="bi bi-quote me-2"></i>Citing DOME
+                  </a>
+                </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
                   <a class="dropdown-item" href="https://dome-ml.org" target="_blank" rel="noopener">
@@ -88,7 +93,7 @@
           </ul>
 
           <!-- Right: auth -->
-          <ul class="navbar-nav ms-auto me-0">
+          <ul class="navbar-nav">
             <ng-container *ngIf="!auth.isLoggedIn()">
               <!-- ORCID login -->
               <li class="nav-item">

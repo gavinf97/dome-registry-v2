@@ -87,4 +87,15 @@ export class UsersService {
   async listAll(): Promise<UserDocument[]> {
     return this.userModel.find();
   }
+
+  async findAdmins(): Promise<UserDocument[]> {
+    return this.userModel.find({ roles: 'admin' });
+  }
+
+  async findJournalOwnersByJournal(journalId: string): Promise<UserDocument[]> {
+    return this.userModel.find({
+      roles: 'journal_owner',
+      'journalAssignments.journalId': journalId,
+    });
+  }
 }
