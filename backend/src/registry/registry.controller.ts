@@ -3,7 +3,7 @@ import {
   Param, Body, Query, Req, UseGuards,
   ForbiddenException, NotFoundException, HttpCode, HttpStatus,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards';
+import { JwtAuthGuard, OptionalJwtAuthGuard } from '../auth/guards';
 import { RegistryService } from './registry.service';
 import { IsOptional, IsString, IsNumber, Min, Max, IsArray, IsBoolean } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
@@ -74,6 +74,7 @@ export class RegistryController {
     await this.registryService.delete(entry.uuid, req.user.orcid, isAdmin);
   }
 
+  @UseGuards(OptionalJwtAuthGuard)
   @Get(':id')
   async getOne(@Param('id') id: string, @Req() req: any) {
     const entry = (await this.registryService.findById(id)) ?? (await this.registryService.findByShortid(id));

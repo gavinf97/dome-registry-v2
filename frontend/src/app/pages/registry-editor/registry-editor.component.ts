@@ -204,15 +204,26 @@ export class RegistryEditorComponent implements OnInit, OnDestroy {
       this.form = buildFormGroupFromSchema(this.sections, this.fb);
 
       if (this.uuid) {
-        this.registryService.get(this.uuid).subscribe(entry => {
-          this.entry = entry;
-          this.patchForm(entry);
-          // Apply copilot annotations on top of the empty draft
-          if (pendingAnnotations) {
-            this.applyCopilotAnnotations(pendingAnnotations);
-            this.copilotStateService.clear();
-          }
-          this.loading = false;
+        this.registryService.get(this.uuid).subscribe({
+          next: entry => {
+            this.entry = entry;
+            this.patchForm(entry);
+            // Apply copilot annotations on top of the loaded entry
+            if (pendingAnnotations) {
+              this.applyCopilotAnnotations(pendingAnnotations);
+              this.copilotStateService.clear();
+            }
+            this.loading = false;
+          },
+          error: () => {
+            // Entry unreachable (deleted or permission issue) — still show blank form
+            // with any pending copilot annotations so the user isn't stranded.
+            if (pendingAnnotations) {
+              this.applyCopilotAnnotations(pendingAnnotations);
+              this.copilotStateService.clear();
+            }
+            this.loading = false;
+          },
         });
       } else {
         if (pendingAnnotations) {

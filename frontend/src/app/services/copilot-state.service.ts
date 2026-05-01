@@ -4,6 +4,8 @@ export interface CopilotResult {
   annotations: Record<string, unknown>;
   filename: string;
   processedAt: number;
+  /** UUID of the draft entry auto-created from these annotations, if save succeeded */
+  draftUuid?: string;
 }
 
 const STORAGE_KEY = 'dome_copilot_result';

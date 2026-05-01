@@ -52,8 +52,8 @@ export class RegistryService {
     return this.http.post<RegistryEntry>(`${API}/registry`, entry);
   }
 
-  update(uuid: string, patch: Partial<RegistryEntry>): Observable<RegistryEntry> {
-    return this.http.patch<RegistryEntry>(`${API}/registry/${uuid}`, patch);
+  update(uuid: string, patch: Partial<RegistryEntry>, changeNote?: string): Observable<RegistryEntry> {
+    return this.http.patch<RegistryEntry>(`${API}/registry/${uuid}`, { data: patch, changeNote });
   }
 
   delete(uuid: string): Observable<void> {
