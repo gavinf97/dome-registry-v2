@@ -25,7 +25,10 @@ import { Component } from '@angular/core';
                     <i [class]="'bi ' + partner.icon + ' fs-5 text-primary'"></i>
                   </div>
                   <div>
-                    <div class="fw-bold mb-1">{{ partner.name }}</div>
+                    <div class="fw-bold mb-1">
+                      {{ partner.name }}
+                      <span *ngIf="partner.comingSoon" class="badge bg-warning text-dark ms-2" style="font-size:0.65rem;vertical-align:middle">Coming Soon</span>
+                    </div>
                     <p class="text-muted small mb-2">{{ partner.desc }}</p>
                     <div class="small text-muted mb-2"><strong>Integration:</strong> {{ partner.integration }}</div>
                     <div class="small text-success mb-2"><strong>Benefit:</strong> {{ partner.benefit }}</div>
@@ -74,17 +77,7 @@ export class AboutIntegrationsComponent {
       benefit: 'Significantly improves Findability and Interoperability of methods. Search engines can better index and understand the content.',
       links: [{ url: 'https://bioschemas.org/', label: 'bioschemas.org' }],
     },
-    {
-      name: 'Data Stewardship Wizard (DOME Wizard)',
-      icon: 'bi-ui-checks',
-      desc: 'The DOME Wizard is built on the DSW framework — an open-source platform for creating smart questionnaires for FAIR data management.',
-      integration: 'We have customized DSW to implement the DOME Recommendations as a guided question-and-answer interface for submissions.',
-      benefit: 'Simplifies the submission process, ensures structural consistency, and lowers the barrier for creating high-quality entries.',
-      links: [
-        { url: 'https://dome.dsw.elixir-europe.org/', label: 'DOME Wizard' },
-        { url: 'https://ds-wizard.org/', label: 'Data Stewardship Wizard' },
-      ],
-    },
+
     {
       name: 'FAIRsharing',
       icon: 'bi-diagram-3',
@@ -115,14 +108,7 @@ export class AboutIntegrationsComponent {
       benefit: 'Full data ownership and GDPR compliance while gathering essential usage analytics to improve services.',
       links: [{ url: 'https://matomo.org/', label: 'matomo.org' }],
     },
-    {
-      name: 'Life Science Login (LS Login)',
-      icon: 'bi-shield-lock',
-      desc: 'LS Login is an Authentication and Authorisation Infrastructure (AAI) service enabling users to access life science web services via institutional credentials.',
-      integration: 'Authentication for accessing the DOME Wizard is handled via LS Login, enabling Single Sign-On with institutional accounts.',
-      benefit: 'Provides a secure, federated login system allowing use of familiar institutional credentials.',
-      links: [{ url: 'https://lifescience-ri.eu/ls-login/', label: 'LS Login' }],
-    },
+
     {
       name: 'Zenodo',
       icon: 'bi-archive',
@@ -147,5 +133,32 @@ export class AboutIntegrationsComponent {
       benefit: 'Grounds method metadata in the original research; enables seamless navigation between DOME entries and the underlying publications.',
       links: [{ url: 'https://europepmc.org/', label: 'europepmc.org' }],
     },
-  ];
+    {
+      name: 'DCAT',
+      icon: 'bi-database-up',
+      desc: 'The Data Catalog Vocabulary (DCAT) is an RDF vocabulary designed to facilitate interoperability between data catalogs published on the Web.',
+      integration: 'Planned export of DOME Registry metadata into DCAT-compliant RDF formats.',
+      benefit: 'Enhances the FAIR principles by making DOME metadata directly machine-readable and seamlessly interoperable with major open science data catalogs globally.',
+      links: [{ url: 'https://www.w3.org/TR/vocab-dcat-3/', label: 'DCAT Specification' }],
+      comingSoon: true
+    },
+    {
+      name: 'Dublin Core',
+      icon: 'bi-card-text',
+      desc: 'The Dublin Core Schema is a set of vocabulary terms used to describe web resources and physical resources.',
+      integration: 'Planned embedding of Dublin Core metadata tags within all DOME entry headers.',
+      benefit: 'Boosts the Findability of ML methods by allowing traditional academic search engines and open science harvesters to index core publication metadata effortlessly.',
+      links: [{ url: 'https://dublincore.org/', label: 'dublincore.org' }],
+      comingSoon: true
+    },
+    {
+      name: 'OAI-PMH',
+      icon: 'bi-broadcast-pin',
+      desc: 'The Open Archives Initiative Protocol for Metadata Harvesting (OAI-PMH) is a protocol developed for harvesting metadata descriptions of records in an archive.',
+      integration: 'Planned active OAI-PMH endpoint exposing DOME Registry records for automated harvesting.',
+      benefit: 'Ensures our open science service is highly Accessible and Interoperable, allowing institutional repositories and aggregators to automatically sync DOME entries.',
+      links: [{ url: 'https://www.openarchives.org/pmh/', label: 'OAI-PMH' }],
+      comingSoon: true
+    },
+  ].sort((a, b) => a.name.localeCompare(b.name));
 }
