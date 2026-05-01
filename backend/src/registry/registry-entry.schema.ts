@@ -3,7 +3,7 @@ import { HydratedDocument } from 'mongoose';
 
 export type RegistryEntryDocument = HydratedDocument<RegistryEntry>;
 
-export type ModerationStatus = 'draft' | 'pending' | 'public' | 'held' | 'rejected';
+export type ModerationStatus = 'draft' | 'pending' | 'public' | 'rejected';
 
 @Schema({ collection: 'registry' })
 export class RegistryEntry {
@@ -30,13 +30,16 @@ export class RegistryEntry {
 
   @Prop({
     required: true,
-    enum: ['draft', 'pending', 'public', 'held', 'rejected'],
+    enum: ['draft', 'pending', 'public', 'rejected'],
     default: 'draft',
   })
   moderationStatus: ModerationStatus;
 
   @Prop()
   journalId?: string;
+
+  @Prop({ type: Date, index: { expireAfterSeconds: 2592000 } }) // 30 days
+  rejectedAt?: Date;
 
   @Prop({ default: 0, min: 0, max: 100 })
   score: number;

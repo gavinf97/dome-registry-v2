@@ -11,11 +11,22 @@ export class AdminService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {}
 
-  async listUsers(page = 1, limit = 50): Promise<{ total: number; users: UserDocument[] }> {
+  async listUsers(page = 1, limit = 50, q = ''): Promise<{ total: number; users: UserDocument[] }> {
     const skip = (page - 1) * limit;
+    const filter: Record<string, any> = {};
+    if (q) {
+      const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      filter.$or = [
+        { orcid: { $regex: escaped, $options: 'i' } },
+        { displayName: { $regex: escaped, $options: 'i' } },
+        { givenName: { $regex: escaped, $options: 'i' } },
+        { familyName: { $regex: escaped, $options: 'i' } },
+        { email: { $regex: escaped, $options: 'i' } },
+      ];
+    }
     const [total, users] = await Promise.all([
-      this.userModel.countDocuments(),
-      this.userModel.find().skip(skip).limit(limit).exec(),
+      this.userModel.countDocuments(filter),
+      this.userModel.find(filter).skip(skip).limit(limit).exec(),
     ]);
     return { total, users };
   }

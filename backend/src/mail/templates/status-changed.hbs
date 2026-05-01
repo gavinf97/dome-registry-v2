@@ -11,7 +11,6 @@
     .entry-box { background: white; border: 1px solid #dee2e6; border-radius: 4px; padding: 12px; margin: 16px 0; }
     .status-public { color: #155724; font-weight: bold; }
     .status-rejected { color: #721c24; font-weight: bold; }
-    .status-held { color: #856404; font-weight: bold; }
     .status-pending { color: #004085; font-weight: bold; }
   </style>
 </head>
@@ -29,8 +28,6 @@
     <p>🎉 Congratulations! Your entry is now publicly visible in the DOME Registry.</p>
     {{else if (eq newStatus "rejected")}}
     <p>Unfortunately your entry was not approved. Please review the entry and contact the registry administrators if you have questions.</p>
-    {{else if (eq newStatus "held")}}
-    <p>Your entry is being reviewed by a journal editor. You will be notified of the outcome.</p>
     {{/if}}
     <a href="{{entryUrl}}" class="btn">View Entry</a>
   </div>

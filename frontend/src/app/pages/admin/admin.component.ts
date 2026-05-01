@@ -32,6 +32,16 @@ import { UserProfile, RegistryEntry } from '../../models/registry.models';
       <ng-container *ngIf="tab === 'users' && isAdmin">
         <div *ngIf="loading" class="text-center py-4"><div class="spinner-border text-primary"></div></div>
 
+        <div class="row g-2 mb-3 align-items-center">
+          <div class="col-md-5">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text"><i class="bi bi-search"></i></span>
+              <input class="form-control" placeholder="Search by ORCID, name, or email…"
+                [formControl]="userSearchControl">
+            </div>
+          </div>
+        </div>
+
         <table *ngIf="!loading" class="table table-sm table-hover align-middle">
           <thead class="table-light">
             <tr>
@@ -151,7 +161,6 @@ import { UserProfile, RegistryEntry } from '../../models/registry.models';
                   <span class="badge"
                     [class.bg-warning]="entry.moderationStatus === 'pending'"
                     [class.text-dark]="entry.moderationStatus === 'pending'"
-                    [class.bg-info]="entry.moderationStatus === 'held'"
                     [class.bg-danger]="entry.moderationStatus === 'rejected'"
                     [class.bg-secondary]="entry.moderationStatus === 'draft'">
                     {{ entry.moderationStatus }}
@@ -184,11 +193,6 @@ import { UserProfile, RegistryEntry } from '../../models/registry.models';
                   (click)="moderate(entry, 'public')"
                   [disabled]="moderating === entry.uuid">
                   <i class="bi bi-check-lg"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-warning" title="Hold"
-                  (click)="moderate(entry, 'held')"
-                  [disabled]="moderating === entry.uuid || entry.moderationStatus === 'held'">
-                  <i class="bi bi-pause-circle"></i>
                 </button>
                 <button class="btn btn-sm btn-outline-danger" title="Reject"
                   (click)="moderate(entry, 'rejected')"
@@ -288,6 +292,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   editingUser: UserProfile | null = null;
   editRoles: string[] = [];
   allRoles = ['user', 'admin', 'journal_owner', 'curator'];
+  userSearchControl = new FormControl('');
 
   // Moderation tab
   queueEntries: RegistryEntry[] = [];
@@ -315,7 +320,6 @@ export class AdminComponent implements OnInit, OnDestroy {
   statusChips = [
     { value: '', label: 'All', activeClass: 'btn-secondary' },
     { value: 'pending', label: 'Pending', activeClass: 'btn-warning text-dark' },
-    { value: 'held', label: 'Held', activeClass: 'btn-info text-dark' },
     { value: 'rejected', label: 'Rejected', activeClass: 'btn-danger' },
     { value: 'draft', label: 'Draft', activeClass: 'btn-secondary' },
   ];
@@ -364,6 +368,15 @@ export class AdminComponent implements OnInit, OnDestroy {
       distinctUntilChanged(),
       takeUntil(this.destroy$),
     ).subscribe(() => { /* filtering done client-side via filteredEntries getter */ });
+
+    this.userSearchControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$),
+    ).subscribe(() => {
+      this.page = 1;
+      this.loadUsers();
+    });
   }
 
   ngOnDestroy(): void {
@@ -388,7 +401,8 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   loadUsers(): void {
     this.loading = true;
-    this.usersService.adminListUsers(this.page).subscribe(res => {
+    const q = this.userSearchControl.value || '';
+    this.usersService.adminListUsers(this.page, q).subscribe(res => {
       this.users = res.users;
       this.loading = false;
     });

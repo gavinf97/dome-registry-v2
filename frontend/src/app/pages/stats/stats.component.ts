@@ -99,7 +99,7 @@ interface StatsData {
                   <div class="d-flex justify-content-between align-items-center mb-1 small">
                     <span class="badge rounded-pill"
                       [class.bg-success]="status[0] === 'public'"
-                      [class.bg-warning]="status[0] === 'pending' || status[0] === 'held'"
+                      [class.bg-warning]="status[0] === 'pending'"
                       [class.bg-secondary]="status[0] === 'draft'"
                       [class.bg-danger]="status[0] === 'rejected'">
                       {{ status[0] }}
@@ -110,7 +110,7 @@ interface StatsData {
                     <div class="rounded-pill"
                       [style.width.%]="stats.total ? (status[1] / stats.total * 100) : 0"
                       [class.bg-success]="status[0] === 'public'"
-                      [class.bg-warning]="status[0] === 'pending' || status[0] === 'held'"
+                      [class.bg-warning]="status[0] === 'pending'"
                       [class.bg-secondary]="status[0] === 'draft'"
                       [class.bg-danger]="status[0] === 'rejected'"
                       style="height:12px;transition:width .4s"></div>

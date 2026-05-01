@@ -159,7 +159,7 @@ export class RegistryService {
 
   async getPendingQueue(): Promise<RegistryEntryDocument[]> {
     return this.entryModel
-      .find({ moderationStatus: { $in: ['pending', 'held'] } })
+      .find({ moderationStatus: 'pending' })
       .sort({ updated: -1 });
   }
 

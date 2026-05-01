@@ -28,7 +28,7 @@ export interface JournalAssignment {
 
 // ---- Registry entry models ----
 
-export type ModerationStatus = 'draft' | 'pending' | 'public' | 'held' | 'rejected';
+export type ModerationStatus = 'draft' | 'pending' | 'public' | 'rejected';
 
 export interface RegistryEntry {
   _id?: string;

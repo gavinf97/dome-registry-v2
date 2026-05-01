@@ -32,9 +32,9 @@ export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
   @Get('users')
-  async listUsers(@Req() req: any, @Query('page') page = '1', @Query('limit') limit = '50') {
+  async listUsers(@Req() req: any, @Query('page') page = '1', @Query('limit') limit = '50', @Query('q') q = '') {
     requireAdmin(req);
-    return this.adminService.listUsers(Number(page), Number(limit));
+    return this.adminService.listUsers(Number(page), Number(limit), q);
   }
 
   @Patch('users/:orcid/roles')

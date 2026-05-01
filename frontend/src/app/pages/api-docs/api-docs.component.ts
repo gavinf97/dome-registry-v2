@@ -107,7 +107,7 @@ import { Component } from '@angular/core';
               </h2>
               <div id="ep2" class="accordion-collapse collapse" data-bs-parent="#endpointsAccordion">
                 <div class="accordion-body small">
-                  <p><strong>Auth:</strong> None for public entries. JWT required to retrieve draft/held/pending entries you own.</p>
+                  <p><strong>Auth:</strong> None for public entries. JWT required to retrieve draft/pending entries you own.</p>
                   <p>Accepts both full UUID and short-id (e.g. <code>abc12345</code>).</p>
                   <p class="fw-semibold mb-1">Example</p>
                   <pre class="bg-dark text-light rounded p-2 mb-0" style="font-size:.78rem">curl "https://registry.dome-ml.org/api/registry/00112233-4455-6677-8899-aabbccddeeff"</pre>

@@ -80,8 +80,9 @@ export class UsersService {
     return this.http.patch<UserProfile>(`${API}/users/me`, patch);
   }
 
-  adminListUsers(page = 1): Observable<{ total: number; users: UserProfile[] }> {
-    return this.http.get<{ total: number; users: UserProfile[] }>(`${API}/admin/users?page=${page}`);
+  adminListUsers(page = 1, q = ''): Observable<{ total: number; users: UserProfile[] }> {
+    const queryStr = q ? `&q=${encodeURIComponent(q)}` : '';
+    return this.http.get<{ total: number; users: UserProfile[] }>(`${API}/admin/users?page=${page}${queryStr}`);
   }
 
   adminSetRoles(orcid: string, roles: string[], journalAssignments?: any[]): Observable<UserProfile> {

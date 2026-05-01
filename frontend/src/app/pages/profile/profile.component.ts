@@ -8,7 +8,6 @@ const STATUS_BADGE: Record<string, string> = {
   draft: 'bg-secondary',
   pending: 'bg-warning text-dark',
   public: 'bg-success',
-  held: 'bg-info text-dark',
   rejected: 'bg-danger',
 };
 

@@ -52,12 +52,12 @@
     },
     "moderationStatus": {
       "type": "string",
-      "enum": ["draft", "pending", "public", "held", "rejected"],
-      "description": "Moderation state machine: draft→pending→public|held→public|rejected."
+      "enum": ["draft", "pending", "public", "rejected"],
+      "description": "Moderation state machine: draft→pending→public|rejected."
     },
     "journalId": {
       "type": "string",
-      "description": "Optional. If set, the entry is associated with a specific journal queue (held state)."
+      "description": "Optional. If set, the entry is associated with a specific journal queue."
     },
     "score": {
       "type": "number",

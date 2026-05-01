@@ -137,8 +137,7 @@ function buildFormGroupFromSchema(sections: SectionDef[], fb: FormBuilder): Form
                   [class.bg-secondary]="entry?.moderationStatus === 'draft'"
                   [class.bg-warning]="entry?.moderationStatus === 'pending'"
                   [class.bg-success]="entry?.moderationStatus === 'public'"
-                  [class.bg-danger]="entry?.moderationStatus === 'rejected'"
-                  [class.bg-info]="entry?.moderationStatus === 'held'">
+                  [class.bg-danger]="entry?.moderationStatus === 'rejected'">
                   {{ entry?.moderationStatus }}
                 </span>
               </div>

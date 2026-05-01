@@ -7,10 +7,10 @@ import { ModerationService, AdminQueueFilters } from './moderation.service';
 import { IsString, IsEnum, IsOptional, IsBoolean } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-type ModerationStatus = 'draft' | 'pending' | 'public' | 'held' | 'rejected';
+type ModerationStatus = 'draft' | 'pending' | 'public' | 'rejected';
 
 class ModerateDto {
-  @IsEnum(['draft', 'pending', 'public', 'held', 'rejected'])
+  @IsEnum(['draft', 'pending', 'public', 'rejected'])
   status: ModerationStatus;
 
   @IsOptional() @IsString() journalId?: string;

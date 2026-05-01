@@ -5,13 +5,12 @@ import { RegistryEntry, RegistryEntryDocument } from '../registry/registry-entry
 import { MailService } from '../mail/mail.service';
 import { UsersService } from '../users/users.service';
 
-type ModerationStatus = 'draft' | 'pending' | 'public' | 'held' | 'rejected';
+type ModerationStatus = 'draft' | 'pending' | 'public' | 'rejected';
 
 const VALID_TRANSITIONS: Record<ModerationStatus, ModerationStatus[]> = {
   draft: ['pending'],
-  pending: ['public', 'held', 'rejected'],
-  held: ['public', 'rejected'],
-  public: ['held'],
+  pending: ['public', 'rejected'],
+  public: [],
   rejected: [],
 };
 
@@ -38,7 +37,7 @@ export class ModerationService {
       throw new BadRequestException(`Cannot submit from state: ${entry.moderationStatus}`);
     }
 
-    const newStatus: ModerationStatus = journalId ? 'held' : 'pending';
+    const newStatus: ModerationStatus = 'pending';
     const updated = await this.entryModel.findOneAndUpdate(
       { uuid },
       { $set: { moderationStatus: newStatus, ...(journalId && { journalId }), updated: new Date().toISOString() } },
@@ -95,6 +94,7 @@ export class ModerationService {
           moderationStatus: status,
           public: status === 'public',
           ...(journalId && { journalId }),
+          ...(status === 'rejected' && { rejectedAt: new Date() }),
           updated: new Date().toISOString(),
         },
       },
@@ -131,7 +131,7 @@ export class ModerationService {
     journalAssignments: Array<{ journalId: string }>,
     filters: AdminQueueFilters = {},
   ): Promise<RegistryEntryDocument[]> {
-    const nonPublicStatuses: ModerationStatus[] = ['draft', 'pending', 'held', 'rejected'];
+    const nonPublicStatuses: ModerationStatus[] = ['draft', 'pending', 'rejected'];
     const query: FilterQuery<RegistryEntryDocument> = {};
 
     // Scope by status filter or default to all non-public
@@ -167,6 +167,6 @@ export class ModerationService {
   }
 
   async getJournalQueue(journalId: string): Promise<RegistryEntryDocument[]> {
-    return this.entryModel.find({ journalId, moderationStatus: 'held' });
+    return this.entryModel.find({ journalId, moderationStatus: 'pending' });
   }
 }
