@@ -29,6 +29,11 @@ import { Component } from '@angular/core';
             </a>
           </li>
           <li class="nav-item flex-shrink-0">
+            <a class="nav-link page-tab" routerLink="/about/team" routerLinkActive="active">
+              <i class="bi bi-person-lines-fill me-1"></i>Team
+            </a>
+          </li>
+          <li class="nav-item flex-shrink-0">
             <a class="nav-link page-tab" routerLink="/about/governance" routerLinkActive="active">
               <i class="bi bi-people me-1"></i>Governance
             </a>

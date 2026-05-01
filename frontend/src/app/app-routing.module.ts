@@ -15,6 +15,7 @@ import { AuthGuard, AdminGuard } from './auth/auth.guard';
 import { AboutComponent } from './pages/about/about.component';
 import { AboutOverviewComponent } from './pages/about/about-overview.component';
 import { AboutIntegrationsComponent } from './pages/about/about-integrations.component';
+import { AboutTeamComponent } from './pages/about/about-team.component';
 import { AboutGovernanceComponent } from './pages/about/about-governance.component';
 import { AboutPoliciesComponent } from './pages/about/about-policies.component';
 import { AboutNewsComponent } from './pages/about/about-news.component';
@@ -33,6 +34,7 @@ const routes: Routes = [
     { path: '', redirectTo: 'overview', pathMatch: 'full' },
     { path: 'overview', component: AboutOverviewComponent },
     { path: 'integrations', component: AboutIntegrationsComponent },
+    { path: 'team', component: AboutTeamComponent },
     { path: 'governance', component: AboutGovernanceComponent },
     { path: 'policies', component: AboutPoliciesComponent },
     { path: 'news', component: AboutNewsComponent },

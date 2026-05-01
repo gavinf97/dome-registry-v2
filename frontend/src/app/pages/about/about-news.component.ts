@@ -9,28 +9,14 @@ import { Component } from '@angular/core';
           Updates &amp; Community
         </div>
         <h2 class="h3 fw-bold mb-2">News &amp; Events</h2>
-        <p class="text-muted mb-5">
+        <p class="text-muted mb-4">
           Stay up to date with the latest DOME Registry announcements, publications, and community events.
         </p>
-
-        <div class="text-center py-5">
-          <div class="mb-4" style="opacity:.35">
-            <i class="bi bi-newspaper" style="font-size:5rem;color:#003958"></i>
-          </div>
-          <h4 class="fw-bold mb-2">Coming Soon</h4>
-          <p class="text-muted mb-4" style="max-width:500px;margin:0 auto">
-            News and events content will be published here. Check back soon for updates on
-            DOME Registry releases, community workshops, and publications.
-          </p>
-          <div class="d-flex flex-wrap gap-3 justify-content-center">
-            <a href="https://github.com/BioComputingUP/dome-registry" target="_blank"
-               rel="noopener" class="btn btn-dark btn-sm">
-              <i class="bi bi-github me-2"></i>Follow on GitHub
-            </a>
-            <a href="mailto:contact&#64;dome-ml.org" class="btn btn-outline-primary btn-sm">
-              <i class="bi bi-envelope me-2"></i>Mailing List
-            </a>
-          </div>
+        <div>
+          <a href="https://dome-ml.org/news" target="_blank"
+             rel="noopener" class="btn btn-primary px-4 py-2">
+            <i class="bi bi-box-arrow-up-right me-2"></i>Go to DOME News &amp; Events
+          </a>
         </div>
       </div>
     </section>

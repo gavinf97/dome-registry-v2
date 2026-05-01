@@ -27,6 +27,7 @@ import { AboutIntegrationsComponent } from './pages/about/about-integrations.com
 import { AboutGovernanceComponent } from './pages/about/about-governance.component';
 import { AboutPoliciesComponent } from './pages/about/about-policies.component';
 import { AboutNewsComponent } from './pages/about/about-news.component';
+import { AboutTeamComponent } from './pages/about/about-team.component';
 import { HelpComponent } from './pages/help/help.component';
 import { HelpGuideComponent } from './pages/help/help-guide.component';
 import { ApiDocsComponent } from './pages/api-docs/api-docs.component';
@@ -50,6 +51,7 @@ import { ApiDocsComponent } from './pages/api-docs/api-docs.component';
     AboutComponent,
     AboutOverviewComponent,
     AboutIntegrationsComponent,
+    AboutTeamComponent,
     AboutGovernanceComponent,
     AboutPoliciesComponent,
     AboutNewsComponent,
