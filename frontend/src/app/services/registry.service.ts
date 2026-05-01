@@ -9,6 +9,11 @@ export interface SearchParams {
   text?: string;
   tags?: string;
   status?: string;
+  sortBy?: string;         // 'created' | 'oldest' | 'score'
+  isAiGenerated?: boolean; // true = AI only, false = human only
+  minScore?: number;
+  year?: string;
+  journal?: string;
   skip?: number;
   limit?: number;
 }
@@ -22,6 +27,11 @@ export class RegistryService {
     if (params.text) p = p.set('text', params.text);
     if (params.tags) p = p.set('tags', params.tags);
     if (params.status) p = p.set('status', params.status);
+    if (params.sortBy) p = p.set('sortBy', params.sortBy);
+    if (params.isAiGenerated !== undefined) p = p.set('isAiGenerated', String(params.isAiGenerated));
+    if (params.minScore !== undefined) p = p.set('minScore', String(params.minScore));
+    if (params.year) p = p.set('year', params.year);
+    if (params.journal) p = p.set('journal', params.journal);
     if (params.skip !== undefined) p = p.set('skip', String(params.skip));
     if (params.limit !== undefined) p = p.set('limit', String(params.limit));
     return this.http.get<SearchResult>(`${API}/registry`, { params: p });

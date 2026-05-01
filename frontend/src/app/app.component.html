@@ -1,9 +1,9 @@
 <!-- DOME Registry V2 — App Shell (V1 visual identity) -->
-<div class="d-flex flex-column flex-nowrap vw-100 vh-100">
+<div class="d-flex flex-column flex-nowrap vw-100 min-vh-100">
 
   <!-- ── Header ─────────────────────────────────────────────────────── -->
   <header class="d-block flex-grow-0">
-    <nav class="navbar navbar-expand-sm navbar-dark bg-primary bg-gradient">
+    <nav class="navbar navbar-expand-sm navbar-dark bg-primary navbar-accent">
       <div class="container-fluid">
 
         <!-- Brand: SVG logo + name -->
@@ -21,7 +21,7 @@
 
         <!-- Nav links -->
         <div class="navbar-collapse collapse" id="navMain">
-          <!-- Left -->
+          <!-- Left: Browse, Stats, Submit, AI Import, Journal Queue, Admin, then About (rightmost) -->
           <ul class="navbar-nav ms-0 me-auto">
             <li class="nav-item">
               <a class="nav-link" routerLink="/search" [routerLinkActive]="['active']">Browse</a>
@@ -29,11 +29,36 @@
             <li class="nav-item">
               <a class="nav-link" routerLink="/stats" [routerLinkActive]="['active']">Statistics</a>
             </li>
-            <!-- About dropdown -->
+            <!-- Submit: always visible; pages guard content if not logged in -->
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/registry/new" [routerLinkActive]="['active']">
+                <i class="bi bi-pencil-square me-1"></i>Submit
+              </a>
+            </li>
+            <!-- AI Import: always visible -->
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/upload" [routerLinkActive]="['active']">
+                <i class="bi bi-robot me-1"></i>AI Import
+              </a>
+            </li>
+            <li class="nav-item" *ngIf="auth.hasRole('journal_owner')">
+              <a class="nav-link" routerLink="/journal-queue" [routerLinkActive]="['active']">
+                <i class="bi bi-journal-check me-1"></i>Journal Queue
+              </a>
+            </li>
+            <li class="nav-item" *ngIf="auth.hasRole('admin')">
+              <a class="nav-link" routerLink="/admin" [routerLinkActive]="['active']">Admin</a>
+            </li>
+            <!-- About: always the rightmost tab in left nav -->
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" role="button"
                  data-bs-toggle="dropdown" aria-expanded="false">About</a>
               <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" routerLink="/about">
+                    <i class="bi bi-question-circle me-2"></i>Help &amp; Documentation
+                  </a>
+                </li>
                 <li>
                   <a class="dropdown-item" routerLink="/" fragment="about">
                     <i class="bi bi-info-circle me-2"></i>What is DOME?
@@ -42,7 +67,7 @@
                 <li>
                   <a class="dropdown-item" href="https://dome-ml.org/guidelines"
                      target="_blank" rel="noopener">
-                    <i class="bi bi-list-check me-2"></i>DOME Checklist
+                    <i class="bi bi-list-check me-2"></i>DOME Guidelines
                   </a>
                 </li>
                 <li>
@@ -59,22 +84,6 @@
                   </a>
                 </li>
               </ul>
-            </li>
-            <li class="nav-item" *ngIf="auth.isLoggedIn()">
-              <a class="nav-link" routerLink="/registry/new" [routerLinkActive]="['active']">Submit</a>
-            </li>
-            <li class="nav-item" *ngIf="auth.isLoggedIn()">
-              <a class="nav-link" routerLink="/upload" [routerLinkActive]="['active']">
-                <i class="bi bi-robot me-1"></i>AI Import
-              </a>
-            </li>
-            <li class="nav-item" *ngIf="auth.hasRole('journal_owner')">
-              <a class="nav-link" routerLink="/journal-queue" [routerLinkActive]="['active']">
-                <i class="bi bi-journal-check me-1"></i>Journal Queue
-              </a>
-            </li>
-            <li class="nav-item" *ngIf="auth.hasRole('admin')">
-              <a class="nav-link" routerLink="/admin" [routerLinkActive]="['active']">Admin</a>
             </li>
           </ul>
 
@@ -131,108 +140,107 @@
     </nav>
   </header>
 
-  <!-- ── Main content (scrollable) ──────────────────────────────────── -->
-  <main class="d-block flex-grow-1 overflow-auto">
+  <!-- ── Main content ─────────────────────────────────────────────── -->
+  <main class="d-block flex-grow-1">
     <router-outlet></router-outlet>
   </main>
 
   <!-- ── Footer ─────────────────────────────────────────────────────── -->
-  <footer class="d-block flex-grow-0 bg-primary bg-gradient text-white">
-    <div class="container-fluid px-4 pt-4 pb-3">
-      <div class="row g-4">
+  <footer class="d-block flex-grow-0 bg-primary text-white">
+    <div class="container-fluid px-4 pt-4 pb-4">
+      <div class="row g-4 justify-content-center">
 
-        <!-- Col 1: Brand -->
-        <div class="col-sm-12 col-md-4">
-          <div class="d-flex align-items-center gap-2 mb-2">
-            <img class="logo-sm" src="assets/logo-white-static.svg" alt="DOME logo">
-            <span class="fw-bold fs-6">DOME Registry</span>
-          </div>
-          <p class="small mb-3" style="opacity:.8;max-width:260px;line-height:1.5">
-            A structured database for transparent, reproducible, and FAIR machine learning
-            in the life sciences.
-          </p>
-          <div class="d-flex align-items-center gap-3">
-            <a href="https://elixir-europe.org/" target="_blank" rel="noopener" title="ELIXIR Europe">
-              <img src="assets/elixir.svg" alt="ELIXIR" style="height:2rem">
-            </a>
-          </div>
-        </div>
-
-        <!-- Col 2: Registry links -->
-        <div class="col-6 col-md-2 offset-md-1">
+        <!-- Col: Registry links -->
+        <div class="col-sm-6 col-md-3">
           <div class="fw-semibold small text-uppercase mb-3" style="opacity:.65;letter-spacing:.08em">Registry</div>
           <ul class="list-unstyled mb-0 small">
-            <li class="mb-1"><a routerLink="/search" class="text-white text-decoration-none footer-link">Browse Entries</a></li>
-            <li class="mb-1"><a routerLink="/stats" class="text-white text-decoration-none footer-link">Statistics</a></li>
-            <li class="mb-1"><a routerLink="/registry/new" class="text-white text-decoration-none footer-link">Submit a Paper</a></li>
-            <li class="mb-1"><a routerLink="/upload" class="text-white text-decoration-none footer-link">
-              <i class="bi bi-robot me-1"></i>AI Import
-            </a></li>
-          </ul>
-        </div>
-
-        <!-- Col 3: About / external links -->
-        <div class="col-6 col-md-2">
-          <div class="fw-semibold small text-uppercase mb-3" style="opacity:.65;letter-spacing:.08em">About</div>
-          <ul class="list-unstyled mb-0 small">
-            <li class="mb-1">
-              <a href="https://dome-ml.org" target="_blank" rel="noopener"
-                class="text-white text-decoration-none footer-link">dome-ml.org</a>
+            <li class="mb-2">
+              <a routerLink="/search" class="text-white text-decoration-none footer-link">
+                <i class="bi bi-grid me-2" style="opacity:.7"></i>Browse Entries
+              </a>
             </li>
-            <li class="mb-1">
-              <a href="https://dome-ml.org/guidelines" target="_blank" rel="noopener"
-                class="text-white text-decoration-none footer-link">DOME Guidelines</a>
+            <li class="mb-2">
+              <a routerLink="/stats" class="text-white text-decoration-none footer-link">
+                <i class="bi bi-bar-chart-line me-2" style="opacity:.7"></i>Statistics
+              </a>
             </li>
-            <li class="mb-1">
-              <a href="https://doi.org/10.1093/bioinformatics/btab661" target="_blank" rel="noopener"
-                class="text-white text-decoration-none footer-link">Key Publication</a>
+            <li class="mb-2">
+              <a routerLink="/registry/new" class="text-white text-decoration-none footer-link">
+                <i class="bi bi-pencil-square me-2" style="opacity:.7"></i>Submit a Paper
+              </a>
             </li>
-            <li class="mb-1">
-              <a href="https://github.com/BioComputingUP" target="_blank" rel="noopener"
-                class="text-white text-decoration-none footer-link">
-                <i class="bi bi-github me-1"></i>BioCompUP
+            <li class="mb-2">
+              <a routerLink="/upload" class="text-white text-decoration-none footer-link">
+                <i class="bi bi-robot me-2" style="opacity:.7"></i>AI Import
               </a>
             </li>
           </ul>
         </div>
 
-        <!-- Col 4: DOME pillars quick-ref -->
-        <div class="col-12 col-md-3">
-          <div class="fw-semibold small text-uppercase mb-3" style="opacity:.65;letter-spacing:.08em">DOME Standard</div>
-          <div class="row g-2">
-            <div *ngFor="let p of footerPillars" class="col-6">
-              <div class="d-flex align-items-center gap-2 small">
-                <i [class]="'bi ' + p.icon" style="opacity:.8"></i>
-                <span style="opacity:.85">{{ p.label }}</span>
-              </div>
-            </div>
-          </div>
-          <div class="mt-3">
+        <!-- Col: About / external links -->
+        <div class="col-sm-6 col-md-3">
+          <div class="fw-semibold small text-uppercase mb-3" style="opacity:.65;letter-spacing:.08em">About</div>
+          <ul class="list-unstyled mb-0 small">
+            <li class="mb-2">
+              <a routerLink="/about" class="text-white text-decoration-none footer-link">
+                <i class="bi bi-question-circle me-2" style="opacity:.7"></i>Help &amp; Documentation
+              </a>
+            </li>
+            <li class="mb-2">
+              <a href="https://dome-ml.org" target="_blank" rel="noopener"
+                class="text-white text-decoration-none footer-link">
+                <i class="bi bi-globe me-2" style="opacity:.7"></i>dome-ml.org
+              </a>
+            </li>
+            <li class="mb-2">
+              <a href="https://dome-ml.org/guidelines" target="_blank" rel="noopener"
+                class="text-white text-decoration-none footer-link">
+                <i class="bi bi-list-check me-2" style="opacity:.7"></i>DOME Guidelines
+              </a>
+            </li>
+            <li class="mb-2">
+              <a href="https://doi.org/10.1093/bioinformatics/btab661" target="_blank" rel="noopener"
+                class="text-white text-decoration-none footer-link">
+                <i class="bi bi-file-earmark-text me-2" style="opacity:.7"></i>Key Publication
+              </a>
+            </li>
+            <li class="mb-2">
+              <a href="https://github.com/BioComputingUP" target="_blank" rel="noopener"
+                class="text-white text-decoration-none footer-link">
+                <i class="bi bi-github me-2" style="opacity:.7"></i>BioComputingUP
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Col: Guidelines CTA -->
+        <div class="col-sm-12 col-md-4">
+          <div class="fw-semibold small text-uppercase mb-3" style="opacity:.65;letter-spacing:.08em">Guidelines</div>
+          <p class="small mb-3" style="opacity:.8;line-height:1.6">
+            The DOME checklist ensures transparent and reproducible reporting of machine
+            learning methods in biology.
+          </p>
+          <div class="d-flex flex-column gap-2">
             <a href="https://dome-ml.org/guidelines" target="_blank" rel="noopener"
               class="btn btn-outline-light btn-sm">
-              <i class="bi bi-book me-1"></i>Read the Guidelines
+              <i class="bi bi-book me-1"></i>Read the DOME Guidelines
+            </a>
+            <a routerLink="/about" class="btn btn-outline-light btn-sm">
+              <i class="bi bi-question-circle me-1"></i>Help &amp; Documentation
             </a>
           </div>
         </div>
 
       </div>
 
-      <!-- Bottom bar -->
-      <div class="border-top mt-4 pt-3 d-flex flex-wrap justify-content-between align-items-center"
-           style="border-color:rgba(255,255,255,.2) !important; font-size:.78rem; opacity:.75">
+      <!-- Bottom: copyright only, no BioComputingUP URL -->
+      <div class="border-top mt-4 pt-3 text-center"
+           style="border-color:rgba(255,255,255,.2) !important; font-size:.78rem; opacity:.7">
         <span>
           &copy; {{ currentYear }} DOME Registry &mdash; University of Padua, Italy.
           &nbsp;
           <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener"
             class="text-white text-decoration-none">CC BY 4.0</a>
-        </span>
-        <span class="mt-1 mt-sm-0">
-          Developed by
-          <a href="https://github.com/BioComputingUP" target="_blank" rel="noopener"
-            class="text-white text-decoration-none">BioComputingUP</a>
-          &mdash;
-          <a href="https://dome-ml.org" target="_blank" rel="noopener"
-            class="text-white text-decoration-none">dome-ml.org</a>
         </span>
       </div>
     </div>

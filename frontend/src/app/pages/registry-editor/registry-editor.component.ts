@@ -7,6 +7,7 @@ import { SchemaService, SectionDef, FieldDef } from '../../services/schema.servi
 import { ScoringService } from '../../services/scoring.service';
 import { RegistryService } from '../../services/registry.service';
 import { RegistryEntry } from '../../models/registry.models';
+import { AuthService } from '../../auth/auth.service';
 
 function buildFormGroupFromSchema(sections: SectionDef[], fb: FormBuilder): FormGroup {
   const top: Record<string, any> = {};
@@ -39,7 +40,35 @@ function buildFormGroupFromSchema(sections: SectionDef[], fb: FormBuilder): Form
 @Component({
   selector: 'app-registry-editor',
   template: `
-    <div class="container-fluid py-4">
+    <!-- Login wall -->
+    <div *ngIf="!auth.isLoggedIn()" class="container py-5" style="max-width:600px">
+      <div class="card border-0 shadow-sm text-center p-5">
+        <i class="bi bi-pencil-square fs-1 mb-3 text-primary"></i>
+        <h3 class="fw-bold mb-2">Submit a Paper</h3>
+        <p class="text-muted mb-1">
+          Fill in the DOME annotation form to add your published machine learning paper
+          to the registry. Each field is guided by the DOME checklist.
+        </p>
+        <p class="text-muted mb-4">
+          You need to be signed in with your ORCID iD to submit or edit entries. ORCID
+          is used to track contribution provenance.
+        </p>
+        <button class="btn btn-orcid d-inline-flex align-items-center gap-2 mx-auto" (click)="auth.login()">
+          <img src="assets/orcid.svg" alt="ORCID" style="height:1.2rem;width:1.2rem">
+          Sign in with ORCID to continue
+        </button>
+        <div class="mt-4 pt-3 border-top">
+          <a routerLink="/search" class="btn btn-outline-secondary btn-sm me-2">
+            <i class="bi bi-grid me-1"></i>Browse Entries
+          </a>
+          <a routerLink="/about" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-question-circle me-1"></i>How it works
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="auth.isLoggedIn()" class="container-fluid py-4">
       <div class="row">
 
         <!-- Main form column -->
@@ -151,6 +180,7 @@ export class RegistryEditorComponent implements OnInit, OnDestroy {
     private schemaService: SchemaService,
     private scoringService: ScoringService,
     private registryService: RegistryService,
+    public auth: AuthService,
   ) {}
 
   ngOnInit(): void {

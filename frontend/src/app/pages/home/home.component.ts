@@ -40,26 +40,28 @@ interface HomeStats {
     </section>
 
     <!-- ── Stats strip ────────────────────────────────────────────────── -->
-    <section class="bg-white border-bottom py-3">
+    <section class="bg-primary text-white py-3">
       <div class="container">
         <div class="row text-center g-0">
-          <div class="col-4 border-end">
-            <div class="fs-2 fw-bold text-primary">{{ stats?.public ?? '–' }}</div>
-            <div class="small text-muted text-uppercase stat-label">Public Entries</div>
+          <div class="col-4" style="border-right:1px solid rgba(255,255,255,.2)">
+            <div class="fs-2 fw-bold text-secondary">{{ stats?.public ?? '–' }}</div>
+            <div class="small text-uppercase stat-label" style="opacity:.7">Public Entries</div>
           </div>
-          <div class="col-4 border-end">
-            <div class="fs-2 fw-bold text-primary">
+          <div class="col-4" style="border-right:1px solid rgba(255,255,255,.2)">
+            <div class="fs-2 fw-bold text-secondary">
               {{ stats ? (stats.avgScore | number:'1.0-1') : '–' }}
             </div>
-            <div class="small text-muted text-uppercase stat-label">Avg. DOME Score</div>
+            <div class="small text-uppercase stat-label" style="opacity:.7">Avg. DOME Score</div>
           </div>
           <div class="col-4">
-            <div class="fs-2 fw-bold text-primary">4</div>
-            <div class="small text-muted text-uppercase stat-label">DOME Pillars</div>
+            <div class="fs-2 fw-bold text-secondary">4</div>
+            <div class="small text-uppercase stat-label" style="opacity:.7">DOME Pillars</div>
           </div>
         </div>
       </div>
     </section>
+    <!-- Stats → entries divider -->
+    <div class="section-sep"></div>
 
     <!-- ── Recently Added ─────────────────────────────────────────────── -->
     <section class="py-5 bg-light">
@@ -129,7 +131,7 @@ interface HomeStats {
     </section>
 
     <!-- ── DOME 4 Pillars ─────────────────────────────────────────────── -->
-    <section class="py-5">
+    <section class="py-5 pillars-section">
       <div class="container">
         <h2 class="h4 fw-bold text-center mb-1">The DOME Framework</h2>
         <p class="text-muted text-center mb-5 pillar-subtitle">
@@ -153,8 +155,10 @@ interface HomeStats {
       </div>
     </section>
 
+    <!-- Pillars → about divider -->
+    <div class="section-sep"></div>
     <!-- ── About / What is DOME? ──────────────────────────────────────── -->
-    <section class="py-5 bg-light" id="about">
+    <section class="py-5 about-tinted" id="about">
       <div class="container">
         <div class="row align-items-center g-5">
           <div class="col-lg-6">
@@ -206,7 +210,7 @@ interface HomeStats {
     </section>
 
     <!-- ── CTA strip ──────────────────────────────────────────────────── -->
-    <section class="py-5 bg-primary bg-gradient text-white text-center">
+    <section class="py-5 bg-primary text-white text-center">
       <div class="container">
         <h2 class="h3 fw-bold mb-2">Add your paper to the registry</h2>
         <p class="mb-4 opacity-75">
@@ -238,6 +242,23 @@ interface HomeStats {
     }
     .hero-sub {
       opacity: .75;
+    }
+
+    /* Thin orange section divider between major content blocks */
+    .section-sep {
+      height: 3px;
+      background: linear-gradient(90deg, #F66729 0%, rgba(246,103,41,.25) 100%);
+    }
+
+    /* Pillars section: white with orange top accent */
+    .pillars-section {
+      background: #fff;
+      border-top: 3px solid #F66729;
+    }
+
+    /* About section: subtle primary-tinted background */
+    .about-tinted {
+      background: #eef5fa;
     }
 
     .stat-label {

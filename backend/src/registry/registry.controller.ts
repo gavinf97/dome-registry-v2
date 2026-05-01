@@ -5,8 +5,8 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards';
 import { RegistryService } from './registry.service';
-import { IsOptional, IsString, IsNumber, Min, Max, IsArray } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsOptional, IsString, IsNumber, Min, Max, IsArray, IsBoolean } from 'class-validator';
+import { Type, Transform } from 'class-transformer';
 
 class SearchQueryDto {
   @IsOptional() @IsString() text?: string;
@@ -14,6 +14,10 @@ class SearchQueryDto {
   @IsOptional() @Type(() => Number) @IsNumber() @Min(0) @Max(100) minScore?: number;
   @IsOptional() @Type(() => Number) @IsNumber() @Min(0) skip?: number;
   @IsOptional() @Type(() => Number) @IsNumber() @Min(1) @Max(100) limit?: number;
+  @IsOptional() @IsString() sortBy?: string;
+  @IsOptional() @Transform(({ value }) => value === 'true') @IsBoolean() isAiGenerated?: boolean;
+  @IsOptional() @IsString() year?: string;
+  @IsOptional() @IsString() journal?: string;
 }
 
 class UpdateEntryDto {
@@ -33,7 +37,11 @@ export class RegistryController {
 
   @Get()
   async search(@Query() query: SearchQueryDto) {
-    return this.registryService.search(query);
+    return this.registryService.search({
+      ...query,
+      sortBy: query.sortBy,
+      isAiGenerated: query.isAiGenerated,
+    });
   }
 
   @Get('stats')
@@ -55,20 +63,20 @@ export class RegistryController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete(':uuid')
+  @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteOne(@Param('uuid') uuid: string, @Req() req: any) {
-    const entry = await this.registryService.findById(uuid);
+  async deleteOne(@Param('id') id: string, @Req() req: any) {
+    const entry = (await this.registryService.findById(id)) ?? (await this.registryService.findByShortid(id));
     if (!entry) throw new NotFoundException();
     const isOwner = entry.user === req.user.orcid;
     const isAdmin = req.user.roles?.includes('admin');
     if (!isOwner && !isAdmin) throw new ForbiddenException();
-    await this.registryService.delete(uuid, req.user.orcid, isAdmin);
+    await this.registryService.delete(entry.uuid, req.user.orcid, isAdmin);
   }
 
-  @Get(':uuid')
-  async getOne(@Param('uuid') uuid: string, @Req() req: any) {
-    const entry = await this.registryService.findById(uuid);
+  @Get(':id')
+  async getOne(@Param('id') id: string, @Req() req: any) {
+    const entry = (await this.registryService.findById(id)) ?? (await this.registryService.findByShortid(id));
     if (!entry) throw new NotFoundException();
 
     // Non-public entries: only accessible by owner or admin
@@ -83,26 +91,26 @@ export class RegistryController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Patch(':uuid')
+  @Patch(':id')
   async update(
-    @Param('uuid') uuid: string,
+    @Param('id') id: string,
     @Req() req: any,
     @Body() dto: UpdateEntryDto,
   ) {
-    const entry = await this.registryService.findById(uuid);
+    const entry = (await this.registryService.findById(id)) ?? (await this.registryService.findByShortid(id));
     if (!entry) throw new NotFoundException();
 
     const isOwner = entry.user === req.user.orcid;
     const isAdmin = req.user.roles?.includes('admin');
     if (!isOwner && !isAdmin) throw new ForbiddenException();
 
-    return this.registryService.update(uuid, req.user.orcid, dto.data ?? {}, dto.changeNote);
+    return this.registryService.update(entry.uuid, req.user.orcid, dto.data ?? {}, dto.changeNote);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get(':uuid/history')
-  async getHistory(@Param('uuid') uuid: string, @Req() req: any) {
-    const entry = await this.registryService.findById(uuid);
+  @Get(':id/history')
+  async getHistory(@Param('id') id: string, @Req() req: any) {
+    const entry = (await this.registryService.findById(id)) ?? (await this.registryService.findByShortid(id));
     if (!entry) throw new NotFoundException();
 
     const isOwner = entry.user === req.user.orcid;
@@ -110,6 +118,6 @@ export class RegistryController {
     if (entry.moderationStatus !== 'public' && !isOwner && !isAdmin) {
       throw new ForbiddenException();
     }
-    return this.registryService.getHistory(uuid);
+    return this.registryService.getHistory(entry.uuid);
   }
 }

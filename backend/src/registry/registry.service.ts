@@ -84,6 +84,10 @@ export class RegistryService {
     user?: string;
     skip?: number;
     limit?: number;
+    sortBy?: string;
+    isAiGenerated?: boolean;
+    year?: string;
+    journal?: string;
   }): Promise<{ items: RegistryEntryDocument[]; total: number }> {
     const filter: Record<string, unknown> = {};
 
@@ -107,12 +111,26 @@ export class RegistryService {
     if (query.user) {
       filter['user'] = query.user;
     }
+    if (query.isAiGenerated !== undefined) {
+      filter['isAiGenerated'] = query.isAiGenerated;
+    }
+    if (query.year) {
+      filter['publication.year'] = query.year;
+    }
+    if (query.journal) {
+      filter['publication.journal'] = { $regex: query.journal, $options: 'i' };
+    }
 
     const skip = query.skip ?? 0;
     const limit = Math.min(query.limit ?? 20, 100);
 
+    const sortSpec: Record<string, 1 | -1> =
+      query.sortBy === 'score'  ? { score: -1 } :
+      query.sortBy === 'oldest' ? { created: 1 } :
+                                  { created: -1 }; // default: newest first
+
     const [items, total] = await Promise.all([
-      this.entryModel.find(filter).skip(skip).limit(limit).sort({ score: -1 }),
+      this.entryModel.find(filter).skip(skip).limit(limit).sort(sortSpec),
       this.entryModel.countDocuments(filter),
     ]);
 
@@ -137,7 +155,7 @@ export class RegistryService {
   }
 
   async getStats(): Promise<Record<string, unknown>> {
-    const [total, publicCount, avgScoreResult, statusCounts, tagAgg, recent] = await Promise.all([
+    const [total, publicCount, avgScoreResult, statusCounts, tagAgg, recent, aiCount, yearAgg, journalAgg] = await Promise.all([
       this.entryModel.countDocuments(),
       this.entryModel.countDocuments({ moderationStatus: 'public' }),
       this.entryModel.aggregate([
@@ -158,7 +176,20 @@ export class RegistryService {
         .find({ moderationStatus: 'public' })
         .sort({ created: -1 })
         .limit(5)
-        .select('uuid publication score created'),
+        .select('uuid shortid publication score created isAiGenerated'),
+      this.entryModel.countDocuments({ moderationStatus: 'public', isAiGenerated: true }),
+      this.entryModel.aggregate([
+        { $match: { moderationStatus: 'public' } },
+        { $group: { _id: '$publication.year', count: { $sum: 1 } } },
+        { $sort: { _id: -1 } },
+        { $limit: 12 },
+      ]),
+      this.entryModel.aggregate([
+        { $match: { moderationStatus: 'public' } },
+        { $group: { _id: '$publication.journal', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 10 },
+      ]),
     ]);
 
     const BUCKETS = [
@@ -183,15 +214,20 @@ export class RegistryService {
     return {
       total,
       public: publicCount,
+      aiGenerated: aiCount,
       avgScore: Math.round((avgScoreResult[0]?.avgScore ?? 0) * 10) / 10,
       byStatus,
       scoreDistribution,
       topTags: tagAgg.map((t: any) => ({ tag: t._id, count: t.count })),
+      byYear: yearAgg.filter((y: any) => y._id).map((y: any) => ({ year: y._id, count: y.count })),
+      topJournals: journalAgg.filter((j: any) => j._id).map((j: any) => ({ journal: j._id, count: j.count })),
       recentEntries: recent.map((e: any) => ({
         uuid: e.uuid,
+        shortid: e.shortid,
         title: e.publication?.title,
         score: e.score,
         created: e.created,
+        isAiGenerated: e.isAiGenerated,
       })),
     };
   }

@@ -42,6 +42,7 @@ export interface RegistryEntry {
   moderationStatus: ModerationStatus;
   journalId?: string;
   score: number;
+  schemaVersion?: string;
   tags: string[];
   publication: Record<string, unknown>;
   data: Record<string, unknown>;
@@ -62,7 +63,7 @@ export interface VersionSnapshot {
 
 export interface SearchResult {
   total: number;
-  entries: RegistryEntry[];
+  items: RegistryEntry[];  // backend returns 'items', not 'entries'
 }
 
 // ---- Copilot ----

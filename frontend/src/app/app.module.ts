@@ -21,6 +21,7 @@ import { EntryDetailComponent } from './pages/entry-detail/entry-detail.componen
 import { StatsComponent } from './pages/stats/stats.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { JournalQueueComponent } from './pages/journal-queue/journal-queue.component';
+import { AboutComponent } from './pages/about/about.component';
 
 @NgModule({
   declarations: [
@@ -38,6 +39,7 @@ import { JournalQueueComponent } from './pages/journal-queue/journal-queue.compo
     StatsComponent,
     ProfileComponent,
     JournalQueueComponent,
+    AboutComponent,
   ],
   imports: [
     BrowserModule,

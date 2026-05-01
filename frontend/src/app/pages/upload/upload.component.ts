@@ -3,11 +3,39 @@ import { Router } from '@angular/router';
 import { FormControl } from '@angular/forms';
 import { CopilotService } from '../../services/api.service';
 import { RegistryService } from '../../services/registry.service';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-upload',
   template: `
-    <div class="container py-5" style="max-width: 700px">
+    <!-- Login wall -->
+    <div *ngIf="!auth.isLoggedIn()" class="container py-5" style="max-width:600px">
+      <div class="card border-0 shadow-sm text-center p-5">
+        <i class="bi bi-robot fs-1 mb-3" style="color:#7b2ff7"></i>
+        <h3 class="fw-bold mb-2">AI Import from PDF</h3>
+        <p class="text-muted mb-1">
+          Upload a paper PDF and the DOME AI Copilot will automatically extract structured
+          annotations for all four DOME pillars.
+        </p>
+        <p class="text-muted mb-4">
+          You need to be signed in with your ORCID iD to use this feature. Your ORCID is
+          used to attribute the annotation to you.
+        </p>
+        <button class="btn btn-orcid d-inline-flex align-items-center gap-2 mx-auto" (click)="auth.login()">
+          <img src="assets/orcid.svg" alt="ORCID" style="height:1.2rem;width:1.2rem">
+          Sign in with ORCID to continue
+        </button>
+        <div class="mt-4 pt-3 border-top">
+          <p class="small text-muted mb-1">
+            <i class="bi bi-info-circle me-1"></i>
+            AI-generated entries are clearly labelled and require human review before publication.
+          </p>
+          <a routerLink="/about" class="small text-decoration-none">Learn more about AI Import →</a>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="auth.isLoggedIn()" class="container py-5" style="max-width: 700px">
       <h2 class="mb-2">Import Paper with AI Copilot</h2>
       <p class="text-muted mb-4">Upload a PDF and the AI Copilot will extract structured DOME annotations automatically.
         You can review and edit all suggestions before saving.</p>
@@ -80,6 +108,7 @@ export class UploadComponent {
     private copilotService: CopilotService,
     private registryService: RegistryService,
     private router: Router,
+    public auth: AuthService,
   ) {}
 
   onFileSelect(event: Event): void {

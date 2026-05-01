@@ -12,6 +12,7 @@ import { StatsComponent } from './pages/stats/stats.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { JournalQueueComponent } from './pages/journal-queue/journal-queue.component';
 import { AuthGuard, AdminGuard } from './auth/auth.guard';
+import { AboutComponent } from './pages/about/about.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -20,10 +21,11 @@ const routes: Routes = [
   { path: 'auth/orcid/callback', component: AuthCallbackComponent },
   { path: 'search', component: SearchComponent },
   { path: 'stats', component: StatsComponent },
+  { path: 'about', component: AboutComponent },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: 'journal-queue', component: JournalQueueComponent, canActivate: [AuthGuard] },
-  { path: 'upload', component: UploadComponent, canActivate: [AuthGuard] },
-  { path: 'registry/new', component: RegistryEditorComponent, canActivate: [AuthGuard] },
+  { path: 'upload', component: UploadComponent },
+  { path: 'registry/new', component: RegistryEditorComponent },
   { path: 'registry/:uuid/history', component: HistoryComponent },
   { path: 'registry/:uuid/edit', component: RegistryEditorComponent, canActivate: [AuthGuard] },
   { path: 'registry/:uuid', component: EntryDetailComponent },
