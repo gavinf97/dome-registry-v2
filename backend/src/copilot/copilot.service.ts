@@ -10,13 +10,15 @@ export class CopilotService {
     pdfBuffer: Buffer;
     doi?: string;
     sections?: string[];
+    apiKey?: string;
   }): Promise<any> {
-    const { pdfBuffer, doi, sections } = params;
+    const { pdfBuffer, doi, sections, apiKey } = params;
 
     const payload = {
       pdf_b64: pdfBuffer.toString('base64'),
       doi: doi ?? null,
       sections: sections ?? ['all'],
+      api_key: apiKey ?? null,
     };
 
     try {

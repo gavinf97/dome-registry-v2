@@ -49,30 +49,21 @@ interface SelectedFile {
 
     <!-- ── Stage: Upload ──────────────────────────────────────────── -->
     <div *ngIf="auth.isLoggedIn() && stage === 'upload'" class="container py-5" style="max-width:760px">
-      <div class="d-flex align-items-start gap-3 mb-1 flex-wrap">
-        <h2 class="mb-0">DOME Copilot from PDF</h2>
-        <div class="ms-auto d-flex gap-2 flex-shrink-0">
-          <a routerLink="/about" class="btn btn-sm btn-outline-secondary">
-            <i class="bi bi-question-circle me-1"></i>How does DOME Copilot work?
-          </a>
-          <a routerLink="/help/docs" class="btn btn-sm btn-outline-primary">
-            <i class="bi bi-code-square me-1"></i>API Documentation
-          </a>
-        </div>
+      <h2 class="mb-3 text-center fw-bold">DOME Copilot</h2>
+      <div class="d-flex justify-content-center gap-2 mb-3 flex-wrap">
+        <a routerLink="/about" class="btn btn-sm btn-outline-secondary">
+          <i class="bi bi-question-circle me-1"></i>How does DOME Copilot work?
+        </a>
+        <a routerLink="/help/docs" class="btn btn-sm btn-outline-primary">
+          <i class="bi bi-code-square me-1"></i>API Documentation
+        </a>
       </div>
-      <p class="text-muted mb-4">
+      <p class="text-muted mb-4 text-center">
         Upload your paper PDF. The DOME Copilot reads the text and pre-fills all DOME fields.
         You review and correct everything before submitting.
       </p>
 
-      <!-- Callout note -->
-      <div class="alert alert-info d-flex gap-2 py-2 mb-3" style="font-size:.85rem">
-        <i class="bi bi-lightbulb-fill flex-shrink-0 mt-1"></i>
-        <div>
-          <strong>Text-based PDFs only.</strong> Scanned images won't extract well.
-          If your Methods section is in a separate supplementary PDF, add it below — the AI will use both.
-        </div>
-      </div>
+
 
       <!-- Selected file chips -->
       <div *ngFor="let sf of selectedFiles; let i = index"
@@ -115,6 +106,36 @@ interface SelectedFile {
           placeholder="e.g. 10.1038/s41592-021-01205-4" [formControl]="doiCtrl" />
       </div>
 
+      <!-- Processing Mode Selection -->
+      <div class="mb-3 p-3 border rounded bg-light">
+        <label class="form-label fw-semibold">Processing Mode</label>
+        
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="radio" name="procMode" id="modeDefault" 
+            value="default" [(ngModel)]="procMode">
+          <label class="form-check-label" for="modeDefault">
+            Use DOME Server <span class="badge bg-primary ms-1">Uses 1 Daily Token</span>
+          </label>
+          <div class="text-muted small">Standard open-weight local model.</div>
+        </div>
+
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="procMode" id="modeCustom" 
+            value="custom" [(ngModel)]="procMode">
+          <label class="form-check-label" for="modeCustom">
+            Bring Your Own API Key (Google AI Studio) <span class="badge bg-success ms-1">Free & Unlimited</span>
+          </label>
+          <div class="text-muted small">Uses Gemini 2.0 Flash. Free API key from <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>.</div>
+        </div>
+
+        <div *ngIf="procMode === 'custom'" class="mt-3">
+          <label class="form-label small fw-semibold">Google Gemini API Key</label>
+          <input type="password" class="form-control form-control-sm"
+            placeholder="AIzaSy..." [formControl]="apiKeyCtrl" />
+          <div class="text-muted small mt-1"><i class="bi bi-shield-check text-success me-1"></i>Key is never stored. Sent securely and immediately discarded.</div>
+        </div>
+      </div>
+
       <div *ngIf="errorMsg" class="alert alert-danger d-flex gap-2 py-2">
         <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1"></i>{{ errorMsg }}
       </div>
@@ -135,15 +156,18 @@ interface SelectedFile {
       </div>
 
       <div class="d-flex gap-2 align-items-center flex-wrap">
-        <button class="btn btn-primary" [disabled]="selectedFiles.length === 0 || quotaExhausted" (click)="process()">
+        <button class="btn btn-primary" 
+          [disabled]="selectedFiles.length === 0 || (procMode === 'default' && quotaExhausted) || (procMode === 'custom' && !apiKeyCtrl.value)" 
+          (click)="process()">
           <i class="bi bi-robot me-1"></i>
           {{ selectedFiles.length > 1 ? 'Process ' + selectedFiles.length + ' PDFs with Copilot' : 'Process with Copilot' }}
         </button>
         <a routerLink="/registry/new" class="btn btn-outline-secondary">
           <i class="bi bi-pencil me-1"></i>Start manually instead
         </a>
-        <span *ngIf="!quotaExhausted" class="text-muted small ms-auto">Uses 1 of your daily Copilot calls</span>
-        <span *ngIf="quotaExhausted" class="text-danger small ms-auto"><i class="bi bi-exclamation-triangle me-1"></i>Daily quota reached</span>
+        <span *ngIf="procMode === 'default' && !quotaExhausted" class="text-muted small ms-auto">Uses 1 of your daily Copilot calls</span>
+        <span *ngIf="procMode === 'default' && quotaExhausted" class="text-danger small ms-auto"><i class="bi bi-exclamation-triangle me-1"></i>Daily quota reached</span>
+        <span *ngIf="procMode === 'custom'" class="text-success small ms-auto"><i class="bi bi-check-circle me-1"></i>Unlimited usage</span>
       </div>
 
       <!-- Dev-only: instant dummy entry for debugging without waiting for LLM -->
@@ -356,6 +380,8 @@ export class UploadComponent implements OnInit, OnDestroy {
   // Upload stage
   selectedFiles: SelectedFile[] = [];
   doiCtrl = new FormControl('');
+  procMode: 'default' | 'custom' = 'default';
+  apiKeyCtrl = new FormControl('');
   isDragOver = false;
   errorMsg = '';
 
@@ -550,7 +576,9 @@ export class UploadComponent implements OnInit, OnDestroy {
     this.log('info', 'Sending ' + mainFile.name + ' (' + this.formatSize(mainFile.size) + ') for AI extraction\u2026');
     if (suppCount > 0) this.log('info', suppCount + ' supplementary PDF(s) noted for context.');
 
-    this.copilotService.processStream(mainFile, this.doiCtrl.value || undefined)
+    const apiKey = this.procMode === 'custom' ? this.apiKeyCtrl.value?.trim() || undefined : undefined;
+
+    this.copilotService.processStream(mainFile, this.doiCtrl.value || undefined, undefined, apiKey)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (event: any) => {
@@ -675,6 +703,7 @@ export class UploadComponent implements OnInit, OnDestroy {
     this.stage = 'upload';
     this.selectedFiles = [];
     this.doiCtrl.reset();
+    // Do not reset procMode and apiKeyCtrl so they persist for the next run
     this.processing = false;
     this.submitting = false;
     this.errorMsg = '';

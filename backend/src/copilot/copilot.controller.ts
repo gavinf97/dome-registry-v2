@@ -50,12 +50,14 @@ export class CopilotController {
 
     const orcid: string = req.user.orcid;
 
-    // Check daily LLM quota
+    const apiKey = req.body?.apiKey?.trim() || undefined;
+
+    // Check daily LLM quota (unless using a custom API key)
     const isDev = process.env.NODE_ENV === 'development';
     const calls = await this.usersService.getDailyLLMCalls(orcid);
-    if (!isDev && calls >= DAILY_QUOTA) {
+    if (!apiKey && !isDev && calls >= DAILY_QUOTA) {
       throw new HttpException(
-        `Daily Copilot quota of ${DAILY_QUOTA} calls reached. Try again tomorrow.`,
+        `Daily Copilot quota of ${DAILY_QUOTA} calls reached. Try again tomorrow or use your own API key.`,
         HttpStatus.TOO_MANY_REQUESTS,
       );
     }
@@ -72,10 +74,13 @@ export class CopilotController {
       pdfBuffer: file.buffer,
       doi: req.body?.doi,
       sections: parsedSections,
+      apiKey,
     });
 
-    // Increment quota only on success
-    await this.usersService.incrementLLMCalls(orcid);
+    // Increment quota only if not using a custom API key
+    if (!apiKey) {
+      await this.usersService.incrementLLMCalls(orcid);
+    }
 
     // PDF buffer is now eligible for GC — no reference kept
     res.setHeader('Content-Type', 'application/x-ndjson');

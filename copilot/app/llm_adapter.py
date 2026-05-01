@@ -22,10 +22,19 @@ class LLMBackend:
     model: str
 
 
-def get_llm() -> LLMBackend:
-    """Create an LLMBackend from environment variables."""
-    mode = os.getenv("LLM_MODE", "local").lower()
+def get_llm(api_key: str | None = None) -> LLMBackend:
+    """Create an LLMBackend from environment variables or provided API key."""
     timeout = float(os.getenv("LLM_TIMEOUT_MS", "120000")) / 1000.0
+
+    if api_key:
+        client = AsyncOpenAI(
+            base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+            api_key=api_key,
+            timeout=timeout,
+        )
+        return LLMBackend(client=client, model="gemini-2.0-flash")
+
+    mode = os.getenv("LLM_MODE", "local").lower()
 
     if mode == "local":
         base = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434").rstrip("/")

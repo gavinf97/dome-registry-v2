@@ -39,6 +39,7 @@ class ProcessRequest(BaseModel):
     pdf_b64: str                         # base64-encoded PDF bytes
     doi: str | None = None
     sections: list[str] | None = None    # e.g. ["data", "optimization"]
+    api_key: str | None = None
 
 
 class ProcessResponse(BaseModel):
@@ -56,7 +57,7 @@ async def process(req: ProcessRequest):
     if len(pdf_bytes) > 20 * 1024 * 1024:
         raise HTTPException(status_code=413, detail="PDF exceeds 20 MB limit")
 
-    llm = get_llm()
+    llm = get_llm(req.api_key)
     
     async def event_generator():
         try:
