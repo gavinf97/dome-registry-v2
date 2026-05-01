@@ -67,6 +67,7 @@ export class AuthService {
       orcid,
       displayName: user.displayName,
       roles: user.roles,
+      journalAssignments: user.journalAssignments ?? [],
     };
 
     const jwt = this.jwtService.sign(payload);
@@ -76,15 +77,21 @@ export class AuthService {
   async devLogin(): Promise<{ jwt: string }> {
     const user = await this.usersService.upsertFromOrcid({
       orcid: '0000-0000-0000-0001',
-      displayName: 'Dev User',
+      displayName: 'Dev Admin',
       givenName: 'Dev',
-      familyName: 'User',
+      familyName: 'Admin',
     });
+    // Always ensure the dev user has admin role
+    if (!user.roles.includes('admin')) {
+      await this.usersService.setRoles(user.orcid, [...user.roles, 'admin']);
+    }
+    const freshUser = await this.usersService.findByOrcid(user.orcid);
     const jwt = this.jwtService.sign({
-      sub: user.orcid,
-      orcid: user.orcid,
-      displayName: user.displayName,
-      roles: user.roles,
+      sub: freshUser!.orcid,
+      orcid: freshUser!.orcid,
+      displayName: freshUser!.displayName,
+      roles: freshUser!.roles,
+      journalAssignments: freshUser!.journalAssignments ?? [],
     });
     return { jwt };
   }

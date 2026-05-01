@@ -331,7 +331,7 @@ export class AdminComponent implements OnInit, OnDestroy {
       if (this.filterJournal && e['journalId'] !== this.filterJournal) return false;
       if (this.filterAI !== null && !!e.isAiGenerated !== this.filterAI) return false;
       if (q) {
-        const title = (e.publication?.['title'] ?? '').toLowerCase();
+        const title = ((e.publication?.['title'] as string) ?? '').toLowerCase();
         const orcid = (e.user ?? '').toLowerCase();
         if (!title.includes(q) && !orcid.includes(q)) return false;
       }
