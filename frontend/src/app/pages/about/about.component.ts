@@ -6,7 +6,6 @@ import { Component } from '@angular/core';
     <!-- Hero -->
     <section class="about-hero text-white py-5">
       <div class="container text-center py-3">
-        <i class="bi bi-info-circle-fill fs-1 mb-3 d-block" style="opacity:.9"></i>
         <h1 class="display-6 fw-bold mb-2">About the DOME Registry</h1>
         <p class="lead mb-0" style="opacity:.85;max-width:600px;margin:0 auto">
           A community resource for structured, transparent annotation of machine learning

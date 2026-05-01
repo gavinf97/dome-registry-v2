@@ -59,26 +59,27 @@ import { Component } from '@angular/core';
     <!-- DOME Score explainer -->
     <section id="scoring" class="py-5 bg-light">
       <div class="container">
-        <div class="row align-items-center g-5">
+        <div class="row g-5">
           <div class="col-lg-6">
             <div class="section-label text-secondary fw-semibold small text-uppercase mb-2" style="letter-spacing:.08em">
               Scoring
             </div>
             <h2 class="h3 fw-bold mb-3">How is the DOME Score calculated?</h2>
             <p class="text-muted mb-3">
-              Each entry is scored against the DOME schema fields. Fields marked as
-              <span class="badge badge-requirement">REQUIREMENT</span> carry full weight (1.0 pt),
-              while <span class="badge badge-recommendation">RECOMMENDATION</span> fields
-              contribute 0.5 pt. The score is expressed as a percentage of the maximum
-              achievable points.
+              Each entry is scored against the DOME schema fields. The score is expressed as a
+              percentage of the maximum achievable points:
             </p>
+            <ul class="text-muted mb-3 list-unstyled ms-2">
+              <li class="mb-2"><span class="badge badge-requirement">REQUIREMENT</span> fields carry full weight (1.0 pt).</li>
+              <li><span class="badge badge-recommendation">RECOMMENDATION</span> fields contribute 0.5 pt.</li>
+            </ul>
             <p class="text-muted mb-0">
               Scores update in real time as you fill in the form. Hover over any field badge
               to see its weight.
             </p>
           </div>
           <div class="col-lg-6">
-            <div class="score-legend">
+            <div class="score-legend mt-lg-5 pt-lg-2">
               <div *ngFor="let band of scoreBands" class="d-flex align-items-center gap-3 mb-3">
                 <div class="score-chip fw-bold text-white text-center rounded"
                      [style.background]="band.color">{{ band.label }}</div>
@@ -141,7 +142,7 @@ import { Component } from '@angular/core';
             <div class="card border-0 shadow-sm h-100 p-3 dome-section-card">
               <div class="fw-bold mb-2"><i class="bi bi-exclamation-circle text-secondary me-2"></i>The Challenge</div>
               <p class="text-muted small mb-0">
-                The lack of standardised reporting makes it impossible to objectively assess
+                The lack of standardised reporting makes it difficult in most cases to objectively assess
                 ML methods and reproduce published results. Benchmarking is hindered by
                 inconsistent reporting of training data, model configuration, and evaluation
                 methodology across publications.
@@ -200,7 +201,7 @@ import { Component } from '@angular/core';
 
     <!-- Citing DOME -->
     <section id="cite" class="py-5">
-      <div class="container" style="max-width:900px">
+      <div class="container">
         <div class="section-label text-secondary fw-semibold small text-uppercase mb-2" style="letter-spacing:.08em">
           Citations
         </div>
@@ -282,7 +283,7 @@ import { Component } from '@angular/core';
 
     <!-- Contact -->
     <section id="contact" class="py-5 bg-light">
-      <div class="container" style="max-width:700px">
+      <div class="container">
         <div class="section-label text-secondary fw-semibold small text-uppercase mb-2" style="letter-spacing:.08em">
           Get in Touch
         </div>
@@ -292,16 +293,12 @@ import { Component } from '@angular/core';
           Questions, bug reports, and contributions are welcome via GitHub or email.
         </p>
         <div class="d-flex flex-wrap gap-3">
-          <a href="https://github.com/BioComputingUP/dome-registry" target="_blank"
+          <a href="https://github.com/gavinf97?tab=repositories" target="_blank"
              rel="noopener" class="btn btn-dark">
             <i class="bi bi-github me-2"></i>GitHub Repository
           </a>
           <a href="mailto:contact&#64;dome-ml.org" class="btn btn-outline-primary">
             <i class="bi bi-envelope me-2"></i>contact&#64;dome-ml.org
-          </a>
-          <a href="https://dome-ml.org" target="_blank" rel="noopener"
-             class="btn btn-outline-secondary">
-            <i class="bi bi-globe me-2"></i>dome-ml.org
           </a>
         </div>
       </div>
@@ -330,7 +327,7 @@ import { Component } from '@angular/core';
 export class AboutOverviewComponent {
   pillars = [
     { label: 'Data', icon: 'bi-database', color: '#003958', bg: 'rgba(0,57,88,.1)',
-      desc: 'Provenance, splits, redundancy &amp; availability' },
+      desc: 'Provenance, splits, redundancy & availability' },
     { label: 'Optimization', icon: 'bi-gear-wide-connected', color: '#0077aa', bg: 'rgba(0,119,170,.1)',
       desc: 'Algorithm, encoding, feature selection' },
     { label: 'Model', icon: 'bi-cpu', color: '#F66729', bg: 'rgba(246,103,41,.1)',
