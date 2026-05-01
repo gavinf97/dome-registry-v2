@@ -87,7 +87,7 @@ import { Component } from '@angular/core';
 export class AboutPoliciesComponent {
   privacySections = [
     {
-      title: 'Who Controls Your Personal Data (Data Controller)?',
+      title: 'Who controls your personal data (data controller)?',
       body: `Professor Silvio Tosatto — University of Padua, Department of Biomedical Sciences.
              Viale G. Colombo 3, 35131 Padua, Italy.
              Email: <a href="mailto:contact&#64;dome-ml.org">contact&#64;dome-ml.org</a>`,
