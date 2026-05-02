@@ -128,11 +128,20 @@ interface SelectedFile {
           <div class="text-muted small">Uses Gemini 2.0 Flash. Free API key from <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>.</div>
         </div>
 
-        <div *ngIf="procMode === 'custom'" class="mt-3">
-          <label class="form-label small fw-semibold">Google Gemini API Key</label>
-          <input type="password" class="form-control form-control-sm"
-            placeholder="AIzaSy..." [formControl]="apiKeyCtrl" />
-          <div class="text-muted small mt-1"><i class="bi bi-shield-check text-success me-1"></i>Key is never stored. Sent securely and immediately discarded.</div>
+        <div *ngIf="procMode === 'custom'" class="mt-3 border-top pt-3">
+          <div class="row gx-3">
+            <div class="col-md-7 mb-2 mb-md-0">
+              <label class="form-label small fw-semibold">Google Gemini API Key</label>
+              <input type="password" class="form-control form-control-sm"
+                placeholder="AIzaSy..." [formControl]="apiKeyCtrl" />
+            </div>
+            <div class="col-md-5">
+              <label class="form-label small fw-semibold">Model Name</label>
+              <input type="text" class="form-control form-control-sm"
+                placeholder="e.g. gemini-2.0-flash" [formControl]="modelCtrl" />
+            </div>
+          </div>
+          <div class="text-muted small mt-2"><i class="bi bi-shield-check text-success me-1"></i>Key is never stored. Sent securely and immediately discarded.</div>
         </div>
       </div>
 
@@ -382,6 +391,7 @@ export class UploadComponent implements OnInit, OnDestroy {
   doiCtrl = new FormControl('');
   procMode: 'default' | 'custom' = 'default';
   apiKeyCtrl = new FormControl('');
+  modelCtrl = new FormControl('gemma-4-31b-it');
   isDragOver = false;
   errorMsg = '';
 
@@ -577,8 +587,9 @@ export class UploadComponent implements OnInit, OnDestroy {
     if (suppCount > 0) this.log('info', suppCount + ' supplementary PDF(s) noted for context.');
 
     const apiKey = this.procMode === 'custom' ? this.apiKeyCtrl.value?.trim() || undefined : undefined;
+    const customModel = this.procMode === 'custom' ? this.modelCtrl.value?.trim() || undefined : undefined;
 
-    this.copilotService.processStream(mainFile, this.doiCtrl.value || undefined, undefined, apiKey)
+    this.copilotService.processStream(mainFile, this.doiCtrl.value || undefined, undefined, apiKey, customModel)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (event: any) => {

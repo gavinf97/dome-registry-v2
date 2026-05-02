@@ -51,6 +51,7 @@ export class CopilotController {
     const orcid: string = req.user.orcid;
 
     const apiKey = req.body?.apiKey?.trim() || undefined;
+    const customModel = req.body?.customModel?.trim() || undefined;
 
     // Check daily LLM quota (unless using a custom API key)
     const isDev = process.env.NODE_ENV === 'development';
@@ -75,6 +76,7 @@ export class CopilotController {
       doi: req.body?.doi,
       sections: parsedSections,
       apiKey,
+      customModel,
     });
 
     // Increment quota only if not using a custom API key

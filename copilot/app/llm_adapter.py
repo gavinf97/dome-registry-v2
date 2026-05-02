@@ -20,9 +20,10 @@ class LLMBackend:
     """Thin wrapper around an AsyncOpenAI client + model name."""
     client: AsyncOpenAI
     model: str
+    sleep_between_calls: float = 0.0
 
 
-def get_llm(api_key: str | None = None) -> LLMBackend:
+def get_llm(api_key: str | None = None, custom_model: str | None = None) -> LLMBackend:
     """Create an LLMBackend from environment variables or provided API key."""
     timeout = float(os.getenv("LLM_TIMEOUT_MS", "120000")) / 1000.0
 
@@ -31,8 +32,10 @@ def get_llm(api_key: str | None = None) -> LLMBackend:
             base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
             api_key=api_key,
             timeout=timeout,
+            max_retries=3,
         )
-        return LLMBackend(client=client, model="gemini-2.0-flash")
+        sleep_time = 2.1 if "gemma" in (custom_model or "").lower() else 4.2
+        return LLMBackend(client=client, model=custom_model or "gemini-2.0-flash", sleep_between_calls=sleep_time)
 
     mode = os.getenv("LLM_MODE", "local").lower()
 

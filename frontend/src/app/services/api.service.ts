@@ -13,13 +13,14 @@ export class CopilotService {
     return this.http.get<{ used: number; max: number; isUnlimited: boolean }>(`${API}/copilot/quota`);
   }
 
-  processStream(pdfFile: File, doi?: string, sections?: string[], apiKey?: string): Observable<any> {
+  processStream(pdfFile: File, doi?: string, sections?: string[], apiKey?: string, customModel?: string): Observable<any> {
     return new Observable(observer => {
       const formData = new FormData();
       formData.append('pdf', pdfFile);
       if (doi) formData.append('doi', doi);
       if (sections?.length) formData.append('sections', sections.join(','));
       if (apiKey) formData.append('apiKey', apiKey);
+      if (customModel) formData.append('customModel', customModel);
 
       const token = localStorage.getItem('dome_jwt');
       

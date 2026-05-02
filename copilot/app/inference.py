@@ -420,6 +420,7 @@ async def run_inference(
     from .llm_adapter import LLMBackend  # local import avoids circular deps
     if isinstance(llm, LLMBackend):
         client, model = llm.client, llm.model
+        sleep_between_calls = llm.sleep_between_calls
     else:
         # Legacy llama-index object — re-create proper backend from env
         logger.warning(
@@ -428,6 +429,7 @@ async def run_inference(
         from .llm_adapter import get_llm
         backend = get_llm()
         client, model = backend.client, backend.model
+        sleep_between_calls = backend.sleep_between_calls
 
     # 1. Extract text from PDF ---------------------------------------------------
     yield {"type": "info", "msg": "Extracting text from PDF\u2026"}
@@ -475,6 +477,10 @@ async def run_inference(
     total_subsections = len(subsection_list)
 
     for i, (section_path, subsection) in enumerate(subsection_list):
+        if sleep_between_calls > 0 and i > 0:
+            yield {"type": "info", "msg": f"Waiting {sleep_between_calls}s to respect free tier API limits..."}
+            await asyncio.sleep(sleep_between_calls)
+
         text_chunk = _relevant_text(text, section_path)
         prompt = _build_prompt(section_path, subsection, text_chunk, doi)
         if not prompt:
