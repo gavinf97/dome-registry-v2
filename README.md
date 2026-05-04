@@ -43,6 +43,19 @@ Four services in a Docker Compose monorepo:
 
 ---
 
+## Run Commands
+
+| Mode | Command |
+|------|---------|
+| **Dev (first run / after changes)** | `docker compose -f docker-compose.dev.yml up --build` |
+| **Dev (subsequent runs, no rebuild)** | `docker compose -f docker-compose.dev.yml up` |
+| **Stop dev stack** | `docker compose -f docker-compose.dev.yml down` |
+| **Wipe volumes (destructive)** | `docker compose -f docker-compose.dev.yml down -v` |
+| **Production (first run / after changes)** | `docker compose up --build` |
+| **Production (subsequent runs)** | `docker compose up` |
+
+---
+
 ## Quick Start (Local Dev)
 
 ### 1. Clone the repo
